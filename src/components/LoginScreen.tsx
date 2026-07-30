@@ -21,9 +21,10 @@ import { Footer } from './Footer';
 
 interface LoginScreenProps {
   onSuccess: () => void;
+  onGuestLogin?: () => void;
 }
 
-export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
+export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess, onGuestLogin }) => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,8 +43,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
       }, 500);
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
-        setError('El cuadro de diálogo de Google fue cerrado o bloqueado. Si estás desde un navegador móvil, utiliza correo y contraseña.');
+      if (err.code === 'auth/unauthorized-domain' || err.message?.includes('unauthorized-domain')) {
+        setError(`El dominio actual (${window.location.hostname}) no está autorizado en Firebase Auth. Puedes acceder usando el botón "Probar en Modo Demostración" más abajo o agregando el dominio a Firebase Console > Auth > Settings > Authorized Domains.`);
+      } else if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+        setError('El cuadro de diálogo de Google fue cerrado o bloqueado. Si estás desde un navegador móvil, utiliza correo y contraseña o el Modo Demostración.');
       } else {
         setError(err.message || 'Error al iniciar sesión con Google.');
       }
@@ -295,8 +298,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
             </button>
           </form>
 
-          {/* Switch Mode Toggle */}
-          <div className="text-center pt-2 border-t border-slate-800">
+          {/* Switch Mode Toggle & Demo Mode */}
+          <div className="text-center pt-2 border-t border-slate-800 space-y-3">
             {mode === 'login' ? (
               <p className="text-xs text-slate-400">
                 ¿Aún no tienes una cuenta de peluquería?{' '}
@@ -325,6 +328,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                   Iniciar sesión
                 </button>
               </p>
+            )}
+
+            {onGuestLogin && (
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={onGuestLogin}
+                  className="w-full py-2.5 px-3 bg-slate-800/80 hover:bg-slate-700/80 text-emerald-400 font-semibold text-xs rounded-xl border border-emerald-500/20 flex items-center justify-center gap-2 transition-all"
+                >
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                  <span>Probar en Modo Demostración (Acceso Directo)</span>
+                </button>
+              </div>
             )}
           </div>
         </div>

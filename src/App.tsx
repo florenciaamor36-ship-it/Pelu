@@ -115,19 +115,63 @@ export default function App() {
 
   // Subscribe to Firebase Auth changes & reload user database
   useEffect(() => {
-    const unsubscribe = subscribeToAuth((user) => {
-      setCurrentUser(user);
+    let isMounted = true;
+
+    // Check if user previously selected Guest / Demo Mode
+    const isGuest = localStorage.getItem('caningroom_guest_user') === 'true';
+    if (isGuest) {
+      setCurrentUser({
+        uid: 'guest-peluqueria',
+        email: 'demo@caningroom.com',
+        displayName: 'Peluquería Canina (Demo)',
+      } as User);
       setAuthChecked(true);
-      if (user) {
-        loadData();
-      } else {
+      loadData();
+      return;
+    }
+
+    // Safety timeout in case Firebase auth initialization takes long or encounters network/iframe delays
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) {
+        setAuthChecked(true);
         setLoading(false);
       }
+    }, 2000);
+
+    const unsubscribe = subscribeToAuth((user) => {
+      clearTimeout(safetyTimer);
+      if (isMounted) {
+        setCurrentUser(user);
+        setAuthChecked(true);
+        if (user) {
+          loadData();
+        } else {
+          setLoading(false);
+        }
+      }
     });
-    return () => unsubscribe();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(safetyTimer);
+      unsubscribe();
+    };
   }, [loadData]);
 
+  const handleGuestLogin = () => {
+    localStorage.setItem('caningroom_guest_user', 'true');
+    setCurrentUser({
+      uid: 'guest-peluqueria',
+      email: 'demo@caningroom.com',
+      displayName: 'Peluquería Canina (Demo)',
+    } as User);
+    setAuthChecked(true);
+    loadData();
+  };
+
   const handleLogout = async () => {
+    localStorage.removeItem('caningroom_guest_user');
+    setCurrentUser(null);
     try {
       await logoutUser();
     } catch (err) {
@@ -245,7 +289,7 @@ export default function App() {
   }
 
   if (!currentUser) {
-    return <LoginScreen onSuccess={loadData} />;
+    return <LoginScreen onSuccess={loadData} onGuestLogin={handleGuestLogin} />;
   }
 
   return (
