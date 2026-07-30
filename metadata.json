@@ -1,0 +1,6 @@
+{
+  "name": "Sistema de Gestión para Peluquería Canina",
+  "description": "Sistema integral de gestión para peluquería canina con fichas de mascotas, agenda de turnos, recordatorios por WhatsApp, inventario de productos y control de ingresos y gastos.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

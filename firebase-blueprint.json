@@ -1,0 +1,103 @@
+{
+  "collections": [
+    {
+      "name": "clientes",
+      "description": "Clientes/dueños de mascotas",
+      "fields": [
+        { "name": "nombre", "type": "string" },
+        { "name": "telefono", "type": "string" },
+        { "name": "direccion", "type": "string" },
+        { "name": "email", "type": "string" },
+        { "name": "notas", "type": "string" },
+        { "name": "created_at", "type": "string" }
+      ]
+    },
+    {
+      "name": "mascotas",
+      "description": "Fichas de mascotas",
+      "fields": [
+        { "name": "cliente_id", "type": "string" },
+        { "name": "nombre", "type": "string" },
+        { "name": "foto_url", "type": "string" },
+        { "name": "raza", "type": "string" },
+        { "name": "tamano", "type": "string" },
+        { "name": "peso_kg", "type": "number" },
+        { "name": "color_pelo", "type": "string" },
+        { "name": "cumpleanos", "type": "string" },
+        { "name": "vacunas_al_dia", "type": "boolean" },
+        { "name": "fecha_ultima_vacunacion", "type": "string" },
+        { "name": "vacunas_detalle", "type": "string" },
+        { "name": "usa_bozal", "type": "boolean" },
+        { "name": "bozal_notas", "type": "string" },
+        { "name": "transporte_llegada", "type": "string" },
+        { "name": "alergias_afecciones", "type": "string" },
+        { "name": "comportamiento", "type": "string" },
+        { "name": "productos_favoritos", "type": "string" },
+        { "name": "observaciones", "type": "string" },
+        { "name": "created_at", "type": "string" }
+      ]
+    },
+    {
+      "name": "servicios",
+      "description": "Catálogo de servicios de peluquería",
+      "fields": [
+        { "name": "nombre", "type": "string" },
+        { "name": "descripcion", "type": "string" },
+        { "name": "duracion_min", "type": "number" },
+        { "name": "precio", "type": "number" },
+        { "name": "tamano_aplicable", "type": "string" },
+        { "name": "categoria", "type": "string" },
+        { "name": "activo", "type": "boolean" }
+      ]
+    },
+    {
+      "name": "turnos",
+      "description": "Turnos agendados",
+      "fields": [
+        { "name": "mascota_id", "type": "string" },
+        { "name": "cliente_id", "type": "string" },
+        { "name": "servicio_id", "type": "string" },
+        { "name": "fecha_hora", "type": "string" },
+        { "name": "estado", "type": "string" },
+        { "name": "notas", "type": "string" },
+        { "name": "precio_cobrado", "type": "number" },
+        { "name": "productos_usados_ids", "type": "array" },
+        { "name": "created_at", "type": "string" }
+      ]
+    },
+    {
+      "name": "productos",
+      "description": "Inventario de productos",
+      "fields": [
+        { "name": "nombre", "type": "string" },
+        { "name": "categoria", "type": "string" },
+        { "name": "stock_actual", "type": "number" },
+        { "name": "stock_minimo", "type": "number" },
+        { "name": "precio_costo", "type": "number" },
+        { "name": "precio_venta", "type": "number" },
+        { "name": "unidad", "type": "string" }
+      ]
+    },
+    {
+      "name": "gastos",
+      "description": "Registro de gastos",
+      "fields": [
+        { "name": "fecha", "type": "string" },
+        { "name": "descripcion", "type": "string" },
+        { "name": "categoria", "type": "string" },
+        { "name": "monto", "type": "number" }
+      ]
+    },
+    {
+      "name": "horarios",
+      "description": "Disponibilidad de horarios",
+      "fields": [
+        { "name": "dia_semana", "type": "number" },
+        { "name": "dia_nombre", "type": "string" },
+        { "name": "hora_inicio", "type": "string" },
+        { "name": "hora_fin", "type": "string" },
+        { "name": "activo", "type": "boolean" }
+      ]
+    }
+  ]
+}
