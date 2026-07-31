@@ -143,7 +143,7 @@ export const TurnosManager: React.FC<TurnosManagerProps> = ({
     }
   };
 
-  const getWhatsAppMessage = (t: Turno) => {
+  const getWhatsAppMessage = (t: Turno, tipo: 'recordatorio' | 'confirmacion' | 'listo' = 'recordatorio') => {
     const fechaObj = new Date(t.fecha_hora);
     const fechaFormatted = fechaObj.toLocaleDateString('es-AR', {
       weekday: 'long',
@@ -155,16 +155,41 @@ export const TurnosManager: React.FC<TurnosManagerProps> = ({
       minute: '2-digit',
     });
 
-    const dogName = t.mascota?.nombre || 'tu perrito/a';
-    const clientName = t.cliente?.nombre || 'Hola';
-    const serviceName = t.servicio?.nombre || 'Peluquería Canina';
+    const dogName = t.mascota?.nombre || 'tu mascota';
+    const clientName = t.cliente?.nombre || 'Cliente';
     const salonName = perfilPeluqueria?.nombre_peluqueria || 'la Peluquería Canina';
-    const ticketMsg = perfilPeluqueria?.mensaje_ticket || '¡Muchas gracias por elegirnos!';
+    const ticketMsg = perfilPeluqueria?.mensaje_ticket || '';
 
-    const msg = `Hola ${clientName}! Te escribimos de *${salonName}* para recordarte el turno de ${dogName} (${serviceName}) para el día ${fechaFormatted} a las ${horaFormatted} hs.\n\n${ticketMsg}`;
+    let template = '';
+    if (tipo === 'confirmacion' && perfilPeluqueria?.plantilla_confirmacion_turno) {
+      template = perfilPeluqueria.plantilla_confirmacion_turno;
+    } else if (tipo === 'listo' && perfilPeluqueria?.plantilla_mascota_lista) {
+      template = perfilPeluqueria.plantilla_mascota_lista;
+    } else if (perfilPeluqueria?.plantilla_recordatorio_turno) {
+      template = perfilPeluqueria.plantilla_recordatorio_turno;
+    }
+
+    let msg = '';
+    if (template) {
+      msg = template
+        .replace(/\{CLIENTE\}/g, clientName)
+        .replace(/\{MASCOTA\}/g, dogName)
+        .replace(/\{FECHA\}/g, fechaFormatted)
+        .replace(/\{HORA\}/g, horaFormatted)
+        .replace(/\{PELUQUERIA\}/g, salonName);
+      if (ticketMsg) {
+        msg += `\n\n${ticketMsg}`;
+      }
+    } else {
+      if (tipo === 'listo') {
+        msg = `¡Hola ${clientName}! Te avisamos de *${salonName}* que ${dogName} ya está bañado/a, cortado/a y listo/a para ser retirado/a. 🐶✂️\n\n${ticketMsg}`;
+      } else {
+        msg = `Hola ${clientName}! Te escribimos de *${salonName}* para recordarte el turno de ${dogName} para el día ${fechaFormatted} a las ${horaFormatted} hs.\n\n${ticketMsg}`;
+      }
+    }
 
     const cleanPhone = (t.cliente?.telefono || '').replace(/[^\d]/g, '');
-    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg.trim())}`;
   };
 
   return (
@@ -215,37 +240,39 @@ export const TurnosManager: React.FC<TurnosManagerProps> = ({
       </div>
 
       {/* Control Toolbar */}
-      <div className="p-4 bg-[#12151c] border border-slate-800 rounded-xl space-y-3 xl:space-y-0 xl:flex xl:items-center xl:justify-between gap-4">
+      <div className="p-3 sm:p-4 bg-[#12151c] border border-slate-800 rounded-xl space-y-3 xl:space-y-0 xl:flex xl:items-center xl:justify-between gap-3">
         {/* View Switch Mode */}
-        <div className="flex items-center bg-[#0a0c10] p-1 rounded-xl border border-slate-800 shrink-0">
+        <div className="flex items-center bg-[#0a0c10] p-1 rounded-xl border border-slate-800 shrink-0 w-full sm:w-auto justify-stretch">
           <button
             onClick={() => setViewMode('almanaque')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+            className={`flex-1 sm:flex-initial px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
               viewMode === 'almanaque'
                 ? 'bg-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <CalendarIcon className="w-4 h-4" /> Almanaque Calendario
+            <CalendarIcon className="w-3.5 h-3.5" />
+            <span>Almanaque</span>
           </button>
           <button
             onClick={() => setViewMode('lista')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+            className={`flex-1 sm:flex-initial px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
               viewMode === 'lista'
                 ? 'bg-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <Scissors className="w-4 h-4" /> Vista Lista ({filteredTurnos.length})
+            <Scissors className="w-3.5 h-3.5" />
+            <span>Lista ({filteredTurnos.length})</span>
           </button>
         </div>
 
         {/* Search Input */}
-        <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 max-w-md w-full">
           <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Buscar por perro, raza, dueño, teléfono..."
+            placeholder="Buscar perro, cliente, raza, teléfono..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="w-full bg-[#0a0c10] border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
@@ -253,12 +280,12 @@ export const TurnosManager: React.FC<TurnosManagerProps> = ({
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
           {/* Quick date chips */}
-          <div className="flex items-center bg-[#0a0c10] p-1 rounded-lg border border-slate-800 text-xs">
+          <div className="flex items-center bg-[#0a0c10] p-1 rounded-lg border border-slate-800 text-xs overflow-x-auto no-scrollbar max-w-full">
             <button
               onClick={() => setFilterFechaMode('todos')}
-              className={`px-3 py-1 rounded-md transition-all ${
+              className={`px-2.5 py-1 rounded-md transition-all shrink-0 ${
                 filterFechaMode === 'todos' ? 'bg-indigo-600 text-white font-medium shadow' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -266,7 +293,7 @@ export const TurnosManager: React.FC<TurnosManagerProps> = ({
             </button>
             <button
               onClick={() => setFilterFechaMode('hoy')}
-              className={`px-3 py-1 rounded-md transition-all ${
+              className={`px-2.5 py-1 rounded-md transition-all shrink-0 ${
                 filterFechaMode === 'hoy' ? 'bg-indigo-600 text-white font-medium shadow' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -274,7 +301,7 @@ export const TurnosManager: React.FC<TurnosManagerProps> = ({
             </button>
             <button
               onClick={() => setFilterFechaMode('manana')}
-              className={`px-3 py-1 rounded-md transition-all ${
+              className={`px-2.5 py-1 rounded-md transition-all shrink-0 ${
                 filterFechaMode === 'manana' ? 'bg-indigo-600 text-white font-medium shadow' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -282,11 +309,11 @@ export const TurnosManager: React.FC<TurnosManagerProps> = ({
             </button>
             <button
               onClick={() => setFilterFechaMode('semana')}
-              className={`px-3 py-1 rounded-md transition-all ${
+              className={`px-2.5 py-1 rounded-md transition-all shrink-0 ${
                 filterFechaMode === 'semana' ? 'bg-indigo-600 text-white font-medium shadow' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Esta Semana
+              Semana
             </button>
           </div>
 
@@ -294,7 +321,7 @@ export const TurnosManager: React.FC<TurnosManagerProps> = ({
           <select
             value={filterEstado}
             onChange={e => setFilterEstado(e.target.value)}
-            className="bg-[#0a0c10] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+            className="flex-1 sm:flex-initial bg-[#0a0c10] border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
           >
             <option value="todos">Todos los Estados</option>
             <option value="confirmado">Confirmados</option>

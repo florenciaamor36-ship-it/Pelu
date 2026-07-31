@@ -16,10 +16,11 @@ import {
   LogOut,
   ShieldCheck,
   Store,
+  Info,
 } from 'lucide-react';
 import { SupabaseConfig, PerfilPeluqueria } from '../types';
 
-export type TabType = 'turnos' | 'mascotas' | 'inventario' | 'finanzas' | 'servicios' | 'disponibilidad' | 'mi_peluqueria' | 'supabase';
+export type TabType = 'turnos' | 'mascotas' | 'inventario' | 'finanzas' | 'servicios' | 'disponibilidad' | 'mi_peluqueria' | 'supabase' | 'sobre_nosotros';
 
 interface HeaderProps {
   activeTab: TabType;
@@ -51,60 +52,48 @@ export const Header: React.FC<HeaderProps> = ({
   const logoUrl = perfilPeluqueria?.logo_url;
 
   return (
-    <header className="border-b border-slate-800 bg-[#0a0c10] backdrop-blur-md sticky top-0 z-30">
+    <header className="border-b border-slate-800 bg-[#0a0c10]/95 backdrop-blur-md sticky top-0 z-30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between py-4 gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('mi_peluqueria')}>
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center shadow-lg shadow-indigo-500/25 overflow-hidden shrink-0 border border-indigo-500/30">
-                {logoUrl ? (
-                  <img src={logoUrl} alt={nombreSalon} className="w-full h-full object-cover" />
-                ) : (
-                  <Dog className="w-6 h-6 text-white" />
-                )}
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                  <span>{nombreSalon}</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-medium flex items-center gap-1">
-                    <Scissors className="w-3 h-3 text-indigo-400" /> Estética Canina
-                  </span>
-                </h1>
-                <p className="text-xs text-slate-400 truncate max-w-xs sm:max-w-md">
-                  {sloganSalon}
-                </p>
-              </div>
+        <div className="flex items-center justify-between py-3 sm:py-4 gap-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center shadow-lg shadow-indigo-500/25 overflow-hidden shrink-0 border border-indigo-500/30">
+              {logoUrl ? (
+                <img src={logoUrl} alt={nombreSalon} className="w-full h-full object-cover" />
+              ) : (
+                <Dog className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              )}
             </div>
-
-            {/* Mobile menu action */}
-            <div className="md:hidden">
-              <button
-                onClick={onOpenNewTurnoModal}
-                className="px-3 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg shadow-md hover:bg-indigo-500 transition-colors flex items-center gap-1"
-              >
-                <Plus className="w-4 h-4" /> Nuevo Turno
-              </button>
+            <div>
+              <h1 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                <span>{nombreSalon}</span>
+                <span className="hidden sm:flex text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-medium items-center gap-1">
+                  <Scissors className="w-3 h-3 text-indigo-400" /> Estética Canina
+                </span>
+              </h1>
+              <p className="text-[11px] sm:text-xs text-slate-400 truncate max-w-[200px] sm:max-w-md">
+                {sloganSalon}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap self-end md:self-auto">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* User Auth Button / Badge */}
             {currentUserEmail ? (
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl">
-                <div className="w-7 h-7 rounded-lg bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 flex items-center justify-center font-bold text-xs">
+              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1 sm:p-1.5 rounded-xl">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 flex items-center justify-center font-bold text-xs">
                   {currentUserEmail.charAt(0).toUpperCase()}
                 </div>
                 <div className="hidden lg:block text-left pr-1">
                   <p className="text-[11px] font-semibold text-white leading-none truncate max-w-[120px]">
                     {currentUserEmail.split('@')[0]}
                   </p>
-                  <span className="text-[9px] text-emerald-400 font-mono">Google/Firebase OK</span>
+                  <span className="text-[9px] text-emerald-400 font-mono">Sesión Nube OK</span>
                 </div>
                 <button
                   onClick={onLogout}
                   title="Cerrar Sesión"
-                  className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors"
+                  className="p-1 sm:p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
@@ -112,30 +101,30 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={onOpenAuthModal}
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/30 transition-all font-semibold"
+                className="flex items-center gap-1.5 text-xs px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/30 transition-all font-semibold"
               >
                 <UserIcon className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Iniciar Sesión</span>
+                <span>Ingresar</span>
               </button>
             )}
 
-            {/* Supabase / Firebase status badge */}
+            {/* Cloud status badge */}
             <button
               onClick={() => setActiveTab('supabase')}
-              className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-xl border transition-all bg-emerald-950/30 border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/40"
-              title="Ver estado de base de datos local y nube Firebase / Supabase"
+              className="flex items-center gap-1.5 sm:gap-2 text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all bg-emerald-950/30 border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/40"
+              title="Ver estado de base de datos en nube"
             >
               <Database className="w-3.5 h-3.5 text-emerald-400" />
               <span className="hidden sm:inline font-mono">
-                Base Firebase Automática OK
+                Sincronización Nube OK
               </span>
-              <span className="sm:hidden font-mono">
-                Firebase OK
+              <span className="sm:hidden font-mono text-[10px]">
+                Nube OK
               </span>
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
             </button>
 
-            {/* Quick action button */}
+            {/* Quick action button (Desktop only) */}
             <button
               onClick={onOpenNewTurnoModal}
               className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all"
@@ -145,8 +134,8 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="flex items-center space-x-1 sm:space-x-2 border-t border-slate-800/80 pt-2 pb-2 overflow-x-auto no-scrollbar">
+      {/* Navigation Tabs (Desktop & Tablet) */}
+        <nav className="hidden md:flex items-center space-x-1 sm:space-x-2 border-t border-slate-800/80 pt-2 pb-2 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('turnos')}
             className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all relative whitespace-nowrap ${
@@ -173,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Dog className="w-4 h-4" />
-            <span>Fichas de Mascotas & Clientes</span>
+            <span>Mascotas & Clientes</span>
           </button>
 
           <button
@@ -251,6 +240,18 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Database className="w-4 h-4" />
             <span>Nube & Respaldos</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('sobre_nosotros')}
+            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
+              activeTab === 'sobre_nosotros'
+                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
+            }`}
+          >
+            <Info className="w-4 h-4" />
+            <span>Sobre Nosotros</span>
           </button>
         </nav>
       </div>

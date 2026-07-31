@@ -7,6 +7,8 @@ import { FinanzasManager } from './components/FinanzasManager';
 import { ServiciosManager } from './components/ServiciosManager';
 import { DisponibilidadManager } from './components/DisponibilidadManager';
 import { MiPeluqueriaManager } from './components/MiPeluqueriaManager';
+import { SobreNosotrosManager } from './components/SobreNosotrosManager';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { LoginScreen } from './components/LoginScreen';
 import { Footer } from './components/Footer';
 import { SupabaseGuideModal } from './components/SupabaseGuideModal';
@@ -117,19 +119,6 @@ export default function App() {
   useEffect(() => {
     let isMounted = true;
 
-    // Check if user previously selected Guest / Demo Mode
-    const isGuest = localStorage.getItem('caningroom_guest_user') === 'true';
-    if (isGuest) {
-      setCurrentUser({
-        uid: 'guest-peluqueria',
-        email: 'demo@caningroom.com',
-        displayName: 'Peluquería Canina (Demo)',
-      } as User);
-      setAuthChecked(true);
-      loadData();
-      return;
-    }
-
     // Safety timeout in case Firebase auth initialization takes long or encounters network/iframe delays
     const safetyTimer = setTimeout(() => {
       if (isMounted) {
@@ -157,17 +146,6 @@ export default function App() {
       unsubscribe();
     };
   }, [loadData]);
-
-  const handleGuestLogin = () => {
-    localStorage.setItem('caningroom_guest_user', 'true');
-    setCurrentUser({
-      uid: 'guest-peluqueria',
-      email: 'demo@caningroom.com',
-      displayName: 'Peluquería Canina (Demo)',
-    } as User);
-    setAuthChecked(true);
-    loadData();
-  };
 
   const handleLogout = async () => {
     localStorage.removeItem('caningroom_guest_user');
@@ -289,7 +267,7 @@ export default function App() {
   }
 
   if (!currentUser) {
-    return <LoginScreen onSuccess={loadData} onGuestLogin={handleGuestLogin} />;
+    return <LoginScreen onSuccess={loadData} />;
   }
 
   return (
@@ -312,7 +290,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-24 md:py-8">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4">
             <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
@@ -397,6 +375,10 @@ export default function App() {
                 onConfigChange={loadData}
               />
             )}
+
+            {activeTab === 'sobre_nosotros' && (
+              <SobreNosotrosManager />
+            )}
           </>
         )}
       </main>
@@ -421,7 +403,17 @@ export default function App() {
       />
 
       {/* Footer */}
-      <Footer />
+      <Footer onOpenSobreNosotros={() => setActiveTab('sobre_nosotros')} />
+
+      {/* Mobile Native Fixed Bottom Navigation */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenNewTurnoModal={() => {
+          setPreSelectedMascotaId(undefined);
+          setIsNewTurnoModalOpen(true);
+        }}
+      />
     </div>
   );
 }

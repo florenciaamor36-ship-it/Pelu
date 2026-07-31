@@ -115,4 +115,10 @@ export interface PerfilPeluqueria {
   horario_atencion?: string;
   mensaje_ticket?: string;
   moneda: string;
+
+  // Plantillas personalizables de WhatsApp
+  plantilla_confirmacion_turno?: string;
+  plantilla_recordatorio_turno?: string;
+  plantilla_mascota_lista?: string;
+  plantilla_promocion?: string;
 }

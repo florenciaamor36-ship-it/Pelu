@@ -217,37 +217,37 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
   return (
     <div className="space-y-6">
       {/* Calendar Header / Toolbar */}
-      <div className="bg-[#12151c] border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#12151c] border border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-md">
-            <CalendarIcon className="w-6 h-6" />
+          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-md shrink-0">
+            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              Almanaque & Agenda de Turnos Sincronizada
+            <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+              Almanaque & Agenda
             </h2>
             <p className="text-xs text-slate-400">
-              Visualiza el calendario mensual y agenda turnos con 1 clic en cualquier día o horario.
+              Calendario mensual de turnos caninos.
             </p>
           </div>
         </div>
 
         {/* Month Selector Controls */}
-        <div className="flex items-center justify-between sm:justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2">
           <div className="flex items-center gap-1 bg-[#0a0c10] p-1 border border-slate-800 rounded-xl">
             <button
               onClick={prevMonth}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               title="Mes anterior"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-bold text-sm text-white px-3 font-mono min-w-[140px] text-center">
+            <span className="font-bold text-xs sm:text-sm text-white px-2 sm:px-3 font-mono text-center min-w-[110px] sm:min-w-[140px]">
               {monthNames[month]} {year}
             </span>
             <button
               onClick={nextMonth}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               title="Mes siguiente"
             >
               <ChevronRight className="w-4 h-4" />
@@ -256,14 +256,14 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
 
           <button
             onClick={goToToday}
-            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-all active:scale-95"
+            className="px-3 py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-all active:scale-95"
           >
             Hoy
           </button>
 
           <button
             onClick={() => onOpenNewTurnoWithDateTime(todayStr, '10:00')}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-1.5 shrink-0 active:scale-95"
+            className="px-3 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-1.5 shrink-0 active:scale-95"
           >
             <Plus className="w-4 h-4" /> Nuevo Turno
           </button>
@@ -271,38 +271,39 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
       </div>
 
       {/* MONTH GRID */}
-      <div className="bg-[#12151c] border border-slate-800 rounded-2xl p-3 sm:p-5 shadow-2xl overflow-hidden">
-        {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center">
-          {weekDayNames.map((d, idx) => (
-            <div
-              key={d}
-              className={`py-2 text-xs font-bold uppercase tracking-wider rounded-lg ${
-                idx === 0 || idx === 6 ? 'text-indigo-400/80 bg-indigo-950/20' : 'text-slate-400 bg-[#0a0c10]/40'
-              }`}
-            >
-              {d}
-            </div>
-          ))}
-        </div>
-
-        {/* Month Day Cells */}
-        <div className="grid grid-cols-7 gap-1 sm:gap-2 auto-rows-fr">
-          {calendarDays.map((cell, idx) => {
-            const dayTurnos = getTurnosForDate(cell.dateStr);
-            const isToday = cell.dateStr === todayStr;
-
-            return (
+      <div className="bg-[#12151c] border border-slate-800 rounded-2xl p-2 sm:p-5 shadow-2xl overflow-x-auto">
+        <div className="min-w-[320px]">
+          {/* Days of Week Header */}
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center">
+            {weekDayNames.map((d, idx) => (
               <div
-                key={`${cell.dateStr}-${idx}`}
-                className={`min-h-[110px] sm:min-h-[130px] p-1.5 sm:p-2 rounded-xl border flex flex-col justify-between transition-all group relative ${
-                  cell.isCurrentMonth
-                    ? isToday
-                      ? 'bg-indigo-950/30 border-indigo-500/60 shadow-lg shadow-indigo-500/10'
-                      : 'bg-[#0a0c10]/80 border-slate-800/80 hover:border-slate-700 hover:bg-[#0d1017]'
-                    : 'bg-[#08090d]/40 border-slate-900 text-slate-600 opacity-40'
+                key={d}
+                className={`py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg ${
+                  idx === 0 || idx === 6 ? 'text-indigo-400/80 bg-indigo-950/20' : 'text-slate-400 bg-[#0a0c10]/40'
                 }`}
               >
+                {d}
+              </div>
+            ))}
+          </div>
+
+          {/* Month Day Cells */}
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 auto-rows-fr">
+            {calendarDays.map((cell, idx) => {
+              const dayTurnos = getTurnosForDate(cell.dateStr);
+              const isToday = cell.dateStr === todayStr;
+
+              return (
+                <div
+                  key={`${cell.dateStr}-${idx}`}
+                  className={`min-h-[70px] sm:min-h-[130px] p-1 sm:p-2 rounded-xl border flex flex-col justify-between transition-all group relative ${
+                    cell.isCurrentMonth
+                      ? isToday
+                        ? 'bg-indigo-950/30 border-indigo-500/60 shadow-lg shadow-indigo-500/10'
+                        : 'bg-[#0a0c10]/80 border-slate-800/80 hover:border-slate-700 hover:bg-[#0d1017]'
+                      : 'bg-[#08090d]/40 border-slate-900 text-slate-600 opacity-40'
+                  }`}
+                >
                 {/* Cell Top Header */}
                 <div className="flex items-center justify-between">
                   <span
@@ -377,6 +378,7 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
               </div>
             );
           })}
+        </div>
         </div>
       </div>
 

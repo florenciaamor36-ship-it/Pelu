@@ -20,9 +20,12 @@ import {
   Image as ImageIcon,
   Trash2,
   Eye,
-  Building
+  Building,
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
 import { PerfilPeluqueria } from '../types';
+import { clearAllDatabaseData } from '../lib/supabase';
 
 interface MiPeluqueriaManagerProps {
   perfil: PerfilPeluqueria;
@@ -42,6 +45,11 @@ export const MiPeluqueriaManager: React.FC<MiPeluqueriaManagerProps> = ({ perfil
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [activePresetIcon, setActivePresetIcon] = useState<string>('dog');
+
+  // Modal de advertencia para limpieza de base de datos
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [confirmInput, setConfirmInput] = useState('');
+  const [isClearing, setIsClearing] = useState(false);
 
   const handleChange = (field: keyof PerfilPeluqueria, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -312,7 +320,7 @@ export const MiPeluqueriaManager: React.FC<MiPeluqueriaManagerProps> = ({ perfil
           <div className="p-6 bg-[#12151c] border border-slate-800 rounded-2xl space-y-5">
             <div className="flex items-center gap-2 border-b border-slate-800/80 pb-3">
               <MessageSquare className="w-5 h-5 text-indigo-400" />
-              <h3 className="text-base font-bold text-white">Mensajes de WhatsApp & Moneda</h3>
+              <h3 className="text-base font-bold text-white">Configuración Básica & Moneda</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -344,6 +352,196 @@ export const MiPeluqueriaManager: React.FC<MiPeluqueriaManagerProps> = ({ perfil
               </div>
             </div>
           </div>
+
+          {/* Plantillas Personalizadas de WhatsApp (Sin API - Enlace Directo) */}
+          <div className="p-6 bg-[#12151c] border border-indigo-500/30 rounded-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Plantillas de Mensajes WhatsApp</h3>
+                  <p className="text-xs text-slate-400">Personaliza los mensajes automáticos enviados por enlace directo de WhatsApp</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-indigo-950/30 border border-indigo-800/40 rounded-xl text-xs text-slate-300 space-y-1">
+              <span className="font-bold text-indigo-300 flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5" /> Variables automáticas disponibles:
+              </span>
+              <p className="text-[11px] text-slate-400">
+                Puedes usar <code className="text-indigo-300 font-mono font-bold">{'{CLIENTE}'}</code>, <code className="text-indigo-300 font-mono font-bold">{'{MASCOTA}'}</code>, <code className="text-indigo-300 font-mono font-bold">{'{FECHA}'}</code>, <code className="text-indigo-300 font-mono font-bold">{'{HORA}'}</code> y <code className="text-indigo-300 font-mono font-bold">{'{PELUQUERIA}'}</code> en tus textos.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Plantilla 1: Confirmación de Turno */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
+                  <span>1. Confirmación de Turno Agendado</span>
+                  <span className="text-[10px] text-emerald-400 font-normal">Aviso inmediato</span>
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Hola {CLIENTE}! Confirmamos el turno para {MASCOTA} el día {FECHA} a las {HORA} hs en {PELUQUERIA}. ¡Te esperamos!"
+                  value={formData.plantilla_confirmacion_turno || ''}
+                  onChange={e => handleChange('plantilla_confirmacion_turno', e.target.value)}
+                  className="w-full bg-[#0a0c10] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              {/* Plantilla 2: Recordatorio de Turno */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
+                  <span>2. Recordatorio Próximo Turno</span>
+                  <span className="text-[10px] text-amber-400 font-normal">Recordatorio</span>
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Hola {CLIENTE}, te recordamos que mañana es el turno de {MASCOTA} a las {HORA} hs en {PELUQUERIA}. ¡Por favor confirmar asistencia!"
+                  value={formData.plantilla_recordatorio_turno || ''}
+                  onChange={e => handleChange('plantilla_recordatorio_turno', e.target.value)}
+                  className="w-full bg-[#0a0c10] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              {/* Plantilla 3: Mascota Lista (Seguimiento) */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
+                  <span>3. Seguimiento / Mascota Lista para Retirar</span>
+                  <span className="text-[10px] text-purple-400 font-normal">Finalizado</span>
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="¡Hola {CLIENTE}! {MASCOTA} ya está bañado/a, limpio/a y listo/a para ser retirado/a en {PELUQUERIA}. 🐶✂️"
+                  value={formData.plantilla_mascota_lista || ''}
+                  onChange={e => handleChange('plantilla_mascota_lista', e.target.value)}
+                  className="w-full bg-[#0a0c10] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              {/* Plantilla 4: Promoción Especial */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
+                  <span>4. Promociones Especiales & Difusión</span>
+                  <span className="text-[10px] text-pink-400 font-normal">Marketing</span>
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="¡Hola {CLIENTE}! En {PELUQUERIA} tenemos una super promoción esta semana para {MASCOTA}. ¡Escríbenos para reservar tu lugar!"
+                  value={formData.plantilla_promocion || ''}
+                  onChange={e => handleChange('plantilla_promocion', e.target.value)}
+                  className="w-full bg-[#0a0c10] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Limpieza de Base de Datos y Datos de Muestra */}
+          <div className="p-6 bg-[#12151c] border border-rose-950/60 rounded-2xl space-y-4">
+            <div className="flex items-center gap-2 border-b border-rose-950/80 pb-3">
+              <AlertTriangle className="w-5 h-5 text-rose-400" />
+              <h3 className="text-base font-bold text-white">Mantenimiento y Limpieza de Datos</h3>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Si deseas comenzar a usar el sistema completamente en blanco para tu negocio, puedes eliminar de forma segura todos los registros acumulados o de prueba.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmInput('');
+                setShowClearModal(true);
+              }}
+              className="px-4 py-2.5 bg-rose-600/20 border border-rose-500/40 hover:bg-rose-600/30 text-rose-300 font-semibold text-xs rounded-xl transition-all flex items-center gap-2 active:scale-95"
+            >
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span>Vaciar Base de Datos / Eliminar Registros</span>
+            </button>
+          </div>
+
+          {/* Modal de Advertencia Crítica para Borrado Completo */}
+          {showClearModal && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+              <div className="bg-[#11141c] border border-rose-500/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 shadow-2xl relative">
+                <div className="flex items-center gap-3 border-b border-rose-950/80 pb-4">
+                  <div className="p-3 bg-rose-600/20 border border-rose-500/30 rounded-2xl text-rose-400 shrink-0">
+                    <AlertTriangle className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-extrabold text-white">¡ADVERTENCIA DE ELIMINACIÓN!</h3>
+                    <p className="text-xs text-rose-300 font-medium">Esta acción vaciará completamente tu sistema</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-xs text-slate-300 leading-relaxed bg-rose-950/20 p-4 rounded-2xl border border-rose-900/40">
+                  <p className="font-bold text-rose-200">
+                    Atención: Estás a punto de borrar de forma permanente los siguientes módulos de tu peluquería:
+                  </p>
+                  <ul className="space-y-2 text-slate-300 list-disc list-inside">
+                    <li><strong>Clientes:</strong> Todos los contactos, teléfonos y direcciones.</li>
+                    <li><strong>Mascotas:</strong> Fichas clínicas, razas, historial de vacunas y fotos.</li>
+                    <li><strong>Turnos:</strong> Agenda completa de turnos pasados y futuros.</li>
+                    <li><strong>Stock:</strong> Listado de productos e insumos de peluquería.</li>
+                    <li><strong>Finanzas:</strong> Registro de gastos, cobros y balances.</li>
+                  </ul>
+                  <p className="text-[11px] text-amber-300 font-semibold pt-1">
+                    ⚠️ Esta acción NO se puede deshacer.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-200 block">
+                    Para confirmar, escribe <span className="text-rose-400 font-bold">ELIMINAR</span> a continuación:
+                  </label>
+                  <input
+                    type="text"
+                    value={confirmInput}
+                    onChange={e => setConfirmInput(e.target.value)}
+                    placeholder="Escribe ELIMINAR"
+                    className="w-full bg-[#07090d] border border-slate-800 focus:border-rose-500 rounded-xl px-4 py-2.5 text-xs text-white uppercase tracking-widest font-mono focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowClearModal(false)}
+                    disabled={isClearing}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs rounded-xl transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    disabled={confirmInput.trim().toUpperCase() !== 'ELIMINAR' || isClearing}
+                    onClick={async () => {
+                      setIsClearing(true);
+                      try {
+                        await clearAllDatabaseData();
+                        alert('¡Base de datos eliminada con éxito! El sistema se reiniciará en blanco.');
+                        window.location.reload();
+                      } catch (err) {
+                        console.error(err);
+                        alert('Ocurrió un error al vaciar los datos.');
+                      } finally {
+                        setIsClearing(false);
+                      }
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:hover:bg-rose-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    {isClearing ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                    <span>SÍ, ELIMINAR TODO MI NEGOCIO</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Action Button */}
           <div className="flex justify-end pt-2">

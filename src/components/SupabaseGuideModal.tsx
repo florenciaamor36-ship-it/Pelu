@@ -113,7 +113,7 @@ export const SupabaseGuideModal: React.FC<SupabaseGuideModalProps> = ({ config, 
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                Diseñado para que te enfoques en atender perritos sin preocuparte por sistemas complejos. Toda tu información (fichas de mascotas, turnos, ventas y stock) se guarda y respalda automáticamente en la nube de Google Firebase.
+                Diseñado para que te enfoques en atender perritos sin preocuparte por sistemas complejos. Toda tu información (fichas de mascotas, turnos, ventas y stock) se guarda y respalda automáticamente en la nube encriptada.
               </p>
             </div>
           </div>
@@ -128,7 +128,7 @@ export const SupabaseGuideModal: React.FC<SupabaseGuideModalProps> = ({ config, 
               </div>
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <p className="text-xs font-semibold text-white">Conexión Directa Firebase</p>
+            <p className="text-xs font-semibold text-white">Conexión Directa Cloud</p>
             <p className="text-[11px] text-slate-400">
               Servidor activo en tiempo real. No requiere ingresar claves, tokens ni instalar nada.
             </p>
@@ -215,7 +215,7 @@ export const SupabaseGuideModal: React.FC<SupabaseGuideModalProps> = ({ config, 
           <div className="pt-4 border-t border-slate-800 space-y-6 animate-in fade-in duration-200">
             <div className="space-y-3">
               <p className="text-xs text-slate-400">
-                Si deseas conectar una instancia personalizada de Supabase además de Firebase, puedes pegar tus credenciales a continuación:
+                Si deseas conectar una instancia personalizada de Supabase además del almacenamiento Nube por defecto, puedes pegar tus credenciales a continuación:
               </p>
 
               <div className="space-y-3">

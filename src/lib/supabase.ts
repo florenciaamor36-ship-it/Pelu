@@ -15,223 +15,12 @@ import {
 const DEFAULT_PROJECT_ID = 'ypzudkxowpxvdggvongz';
 const DEFAULT_SUPABASE_URL = `https://${DEFAULT_PROJECT_ID}.supabase.co`;
 
-// Initial sample data for Peluquería Canina
-const INITIAL_CLIENTES: Cliente[] = [
-  {
-    id: 'cli-1',
-    nombre: 'Carolina Méndez',
-    telefono: '+54 9 11 5544-3322',
-    direccion: 'Av. Corrientes 3420, Depto 4B, CABA',
-    email: 'carolina.mendez@gmail.com',
-    notas: 'Puntual. Le gusta que le dejen moño rojo a Lola.',
-    created_at: new Date(Date.now() - 40 * 86400000).toISOString(),
-  },
-  {
-    id: 'cli-2',
-    nombre: 'Gonzalo Fernández',
-    telefono: '+54 9 11 4411-8899',
-    direccion: 'Calle Laprida 1280, San Isidro',
-    email: 'gfernandez@hotmail.com',
-    notas: 'Solicita retiro y entrega a domicilio si es posible.',
-    created_at: new Date(Date.now() - 25 * 86400000).toISOString(),
-  },
-  {
-    id: 'cli-3',
-    nombre: 'Valeria Rossi',
-    telefono: '+54 9 11 6677-2211',
-    direccion: 'Av. Libertador 4500, Belgrano',
-    email: 'vrossi@empresa.com',
-    notas: 'Suele traer a sus 2 caniches juntos.',
-    created_at: new Date(Date.now() - 10 * 86400000).toISOString(),
-  },
-];
-
-const INITIAL_MASCOTAS: Mascota[] = [
-  {
-    id: 'mas-1',
-    cliente_id: 'cli-1',
-    nombre: 'Lola',
-    foto_url: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=300',
-    raza: 'Caniche Toy',
-    tamano: 'Pequeño',
-    peso_kg: 3.8,
-    color_pelo: 'Blanco / Crema',
-    cumpleanos: '2022-04-12',
-    vacunas_al_dia: true,
-    fecha_ultima_vacunacion: '2025-10-15',
-    vacunas_detalle: 'Antirrábica y Séxtuple al día (Vence 10/2026)',
-    usa_bozal: false,
-    transporte_llegada: 'Caminando',
-    alergias_afecciones: 'Piel sensible en lomo. Usar shampoo hipoalergénico de avena.',
-    comportamiento: 'Muy mansa y alegre. Le asusta un poco el secador de aire fuerte.',
-    productos_favoritos: 'Shampoo Hipoalergénico Avena, Acondicionador Desenredante',
-    observaciones: 'Corte de tijera en carita acorazonada, corte higiénico suave.',
-    created_at: new Date(Date.now() - 40 * 86400000).toISOString(),
-  },
-  {
-    id: 'mas-2',
-    cliente_id: 'cli-2',
-    nombre: 'Thor',
-    foto_url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=300',
-    raza: 'Golden Retriever',
-    tamano: 'Grande',
-    peso_kg: 32.5,
-    color_pelo: 'Dorado Intenso',
-    cumpleanos: '2020-09-05',
-    vacunas_al_dia: true,
-    fecha_ultima_vacunacion: '2025-11-20',
-    vacunas_detalle: 'Sextuple, Antirrábica y Tos de las Perreras al día',
-    usa_bozal: false,
-    transporte_llegada: 'En vehículo',
-    alergias_afecciones: 'Sensibilidad en oídos (tendencia a otitis). Secar muy bien canal auditivo.',
-    comportamiento: 'Súper amigable, le encanta el agua y los mimos.',
-    productos_favoritos: 'Shampoo Deslanador Profundo, Perfume Canino Coco',
-    observaciones: 'Deslanado intenso con furminator + baño térmico. No cortar manto.',
-    created_at: new Date(Date.now() - 25 * 86400000).toISOString(),
-  },
-  {
-    id: 'mas-3',
-    cliente_id: 'cli-3',
-    nombre: 'Rocky',
-    foto_url: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=300',
-    raza: 'Schnauzer Mini',
-    tamano: 'Pequeño',
-    peso_kg: 7.2,
-    color_pelo: 'Sal y Pimienta',
-    cumpleanos: '2021-11-20',
-    vacunas_al_dia: true,
-    fecha_ultima_vacunacion: '2025-08-05',
-    vacunas_detalle: 'Antirrábica al día',
-    usa_bozal: true,
-    bozal_notas: 'Para secado y corte de uñas si se estresa',
-    transporte_llegada: 'En vehículo',
-    alergias_afecciones: 'Ligera dermatitis en patas traseras.',
-    comportamiento: 'Guau inquieto, poner bozal suave para corte de uñas si se estresa.',
-    productos_favoritos: 'Shampoo Nutritivo Pelos Oscuros, Jabón Antiséptico Patas',
-    observaciones: 'Corte estilo raza Schnauzer (faldón, cejas y barba definidas).',
-    created_at: new Date(Date.now() - 10 * 86400000).toISOString(),
-  },
-];
-
-const INITIAL_SERVICIOS: Servicio[] = [
-  {
-    id: 'srv-1',
-    nombre: 'Corte Completo & Baño Comercial',
-    descripcion: 'Corte de pelo a máquina/tijera según raza, baño profundo, secado, limpieza de oídos, corte de uñas y perfume.',
-    duracion_min: 90,
-    precio: 22000,
-    tamano_aplicable: 'Pequeño',
-    categoria: 'Corte & Estética',
-    activo: true,
-  },
-  {
-    id: 'srv-2',
-    nombre: 'Baño & Deslanado Profundo (Perro Grande)',
-    descripcion: 'Baño para mantos dobles (Golden, Ovejero, Husky), cepillado técnico deslanador, secado expulsador, oídos y uñas.',
-    duracion_min: 120,
-    precio: 35000,
-    tamano_aplicable: 'Grande',
-    categoria: 'Baño & Manto',
-    activo: true,
-  },
-  {
-    id: 'srv-3',
-    nombre: 'Mantenimiento Higiénico & Uñas',
-    descripcion: 'Corte higiénico (plantales, zona genital y vientre), vaciado de glándulas si requiere, limado de uñas y oídos.',
-    duracion_min: 45,
-    precio: 14000,
-    tamano_aplicable: 'Todos',
-    categoria: 'Higiene Básica',
-    activo: true,
-  },
-  {
-    id: 'srv-4',
-    nombre: 'Baño Medicinal / Dermoprotector',
-    descripcion: 'Baño especial con shampoo antiséptico o de avena con tiempo de reposo de 10 min para pieles sensibles o atópicas.',
-    duracion_min: 60,
-    precio: 25000,
-    tamano_aplicable: 'Todos',
-    categoria: 'Tratamientos Especiales',
-    activo: true,
-  },
-];
-
-const INITIAL_PRODUCTOS: Producto[] = [
-  {
-    id: 'prod-1',
-    nombre: 'Shampoo Hipoalergénico Avena Orgánica (5 Litros)',
-    categoria: 'Shampoos',
-    stock_actual: 4,
-    stock_minimo: 2,
-    precio_costo: 18500,
-    precio_venta: 28000,
-    unidad: 'Bidones 5L',
-  },
-  {
-    id: 'prod-2',
-    nombre: 'Acondicionador Desenredante Keratina Pro (1 Litro)',
-    categoria: 'Acondicionadores',
-    stock_actual: 8,
-    stock_minimo: 3,
-    precio_costo: 8200,
-    precio_venta: 14000,
-    unidad: 'Botellas 1L',
-  },
-  {
-    id: 'prod-3',
-    nombre: 'Perfume Canino Brisa Silvestre (250ml)',
-    categoria: 'Accesorios & Estética',
-    stock_actual: 15,
-    stock_minimo: 5,
-    precio_costo: 3500,
-    precio_venta: 6500,
-    unidad: 'Frascos',
-  },
-  {
-    id: 'prod-4',
-    nombre: 'Pipeta Antipulgas & Garrapatas Perro Pequeño',
-    categoria: 'Salud & Antiparasitarios',
-    stock_actual: 22,
-    stock_minimo: 8,
-    precio_costo: 4200,
-    precio_venta: 7800,
-    unidad: 'Pipetas',
-  },
-  {
-    id: 'prod-5',
-    nombre: 'Moños y Corbatas de Seda (Pack x50 u.)',
-    categoria: 'Accesorios & Estética',
-    stock_actual: 3,
-    stock_minimo: 2,
-    precio_costo: 4500,
-    precio_venta: 9000,
-    unidad: 'Packs',
-  },
-];
-
-const INITIAL_GASTOS: Gasto[] = [
-  {
-    id: 'gas-1',
-    fecha: new Date(Date.now() - 5 * 86400000).toISOString().split('T')[0],
-    descripcion: 'Compra reposición de Shampoos y Acondicionadores',
-    categoria: 'Insumos',
-    monto: 54000,
-  },
-  {
-    id: 'gas-2',
-    fecha: new Date(Date.now() - 12 * 86400000).toISOString().split('T')[0],
-    descripcion: 'Afilado técnico de cuchillas N10 y tijeras rectas',
-    categoria: 'Mantenimiento Equipos',
-    monto: 16500,
-  },
-  {
-    id: 'gas-3',
-    fecha: new Date(Date.now() - 20 * 86400000).toISOString().split('T')[0],
-    descripcion: 'Servicio de Luz y Agua del salón',
-    categoria: 'Servicios & Alquiler',
-    monto: 42000,
-  },
-];
+// Initial sample data for Peluquería Canina (Start empty)
+const INITIAL_CLIENTES: Cliente[] = [];
+const INITIAL_MASCOTAS: Mascota[] = [];
+const INITIAL_SERVICIOS: Servicio[] = [];
+const INITIAL_PRODUCTOS: Producto[] = [];
+const INITIAL_GASTOS: Gasto[] = [];
 
 const INITIAL_HORARIOS: HorarioDisponibilidad[] = [
   { id: 'h-1', dia_semana: 1, dia_nombre: 'Lunes', hora_inicio: '09:00', hora_fin: '19:00', activo: true },
@@ -243,62 +32,7 @@ const INITIAL_HORARIOS: HorarioDisponibilidad[] = [
   { id: 'h-0', dia_semana: 0, dia_nombre: 'Domingo', hora_inicio: '10:00', hora_fin: '14:00', activo: false },
 ];
 
-const today = new Date();
-const formatIso = (offsetDays: number, hour: number, min: number) => {
-  const d = new Date(today);
-  d.setDate(d.getDate() + offsetDays);
-  d.setHours(hour, min, 0, 0);
-  return d.toISOString();
-};
-
-const INITIAL_TURNOS: Turno[] = [
-  {
-    id: 'tur-1',
-    mascota_id: 'mas-1',
-    cliente_id: 'cli-1',
-    servicio_id: 'srv-1',
-    fecha_hora: formatIso(0, 10, 0), // Today 10:00 AM
-    estado: 'confirmado',
-    notas: 'Pedir moño rosa. Usar shampoo de avena en Lola.',
-    precio_cobrado: 22000,
-    productos_usados_ids: ['prod-1', 'prod-3'],
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'tur-2',
-    mascota_id: 'mas-2',
-    cliente_id: 'cli-2',
-    servicio_id: 'srv-2',
-    fecha_hora: formatIso(0, 15, 0), // Today 15:00
-    estado: 'pendiente',
-    notas: 'Cuidar oídos durante secado de Thor.',
-    precio_cobrado: 35000,
-    productos_usados_ids: ['prod-2', 'prod-3'],
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'tur-3',
-    mascota_id: 'mas-3',
-    cliente_id: 'cli-3',
-    servicio_id: 'srv-1',
-    fecha_hora: formatIso(1, 11, 30), // Tomorrow 11:30 AM
-    estado: 'confirmado',
-    notas: 'Corte típico Schnauzer.',
-    precio_cobrado: 22000,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'tur-4',
-    mascota_id: 'mas-1',
-    cliente_id: 'cli-1',
-    servicio_id: 'srv-3',
-    fecha_hora: formatIso(-3, 11, 0), // 3 days ago
-    estado: 'completado',
-    notas: 'Mantenimiento higiénico rápido sin complicaciones.',
-    precio_cobrado: 14000,
-    created_at: new Date(Date.now() - 4 * 86400000).toISOString(),
-  },
-];
+const INITIAL_TURNOS: Turno[] = [];
 
 // SQL Schema for Peluquería Canina
 export const SUPABASE_SQL_SCHEMA = `-- ========================================================
@@ -413,6 +147,19 @@ CREATE POLICY "Anon Gastos" ON public.gastos FOR ALL USING (true) WITH CHECK (tr
 CREATE POLICY "Anon Horarios" ON public.horarios_disponibilidad FOR ALL USING (true) WITH CHECK (true);
 `;
 
+// Helper to check if an item is sample data
+function isSampleId(id: string): boolean {
+  if (!id) return false;
+  return (
+    id.startsWith('cli-') ||
+    id.startsWith('mas-') ||
+    id.startsWith('srv-') ||
+    id.startsWith('prod-') ||
+    id.startsWith('gas-') ||
+    id.startsWith('tur-')
+  );
+}
+
 // Local Storage helpers
 const getStorageKey = (key: string) => {
   const uid = auth.currentUser?.uid;
@@ -422,7 +169,13 @@ const getStorageKey = (key: string) => {
 const getStorage = <T>(key: string, fallback: T): T => {
   try {
     const item = localStorage.getItem(getStorageKey(key));
-    return item ? JSON.parse(item) : fallback;
+    if (!item) return fallback;
+    const parsed = JSON.parse(item);
+    if (Array.isArray(parsed)) {
+      const filtered = parsed.filter(i => !i || !i.id || !isSampleId(i.id));
+      return filtered as unknown as T;
+    }
+    return parsed;
   } catch {
     return fallback;
   }
@@ -501,21 +254,56 @@ async function fetchFirestoreCollection<T extends { id: string }>(collName: stri
     const storageKey = auth.currentUser?.uid ? `${auth.currentUser.uid}_${collName}` : collName;
     if (!snap.empty) {
       const items: T[] = [];
-      snap.forEach(d => items.push(d.data() as T));
+      snap.forEach(d => {
+        const item = d.data() as T;
+        if (!isSampleId(item.id)) {
+          items.push(item);
+        }
+      });
       setStorage(storageKey, items);
       return items;
     } else {
-      // Seed Firestore with initial sample data so new database isn't blank
-      for (const item of initialData) {
-        await setDoc(getUserDocRef(collName, item.id), item);
+      // If collection is empty, only seed if initialData is provided (e.g. horarios default)
+      const cleanInitial = (initialData || []).filter(i => !isSampleId(i.id));
+      if (cleanInitial.length > 0) {
+        for (const item of cleanInitial) {
+          await setDoc(getUserDocRef(collName, item.id), item);
+        }
       }
-      setStorage(storageKey, initialData);
-      return initialData;
+      setStorage(storageKey, cleanInitial);
+      return cleanInitial;
     }
   } catch (err) {
     console.warn(`Firestore collection ${collName} fetch failed, using local storage fallback:`, err);
     const storageKey = auth.currentUser?.uid ? `${auth.currentUser.uid}_${collName}` : collName;
-    return getStorage<T[]>(storageKey, initialData);
+    const local = getStorage<T[]>(storageKey, initialData);
+    return (local || []).filter(i => !isSampleId(i.id));
+  }
+}
+
+// Function to wipe all data completely for a clean slate
+export async function clearAllDatabaseData(): Promise<void> {
+  const collections = ['clientes', 'mascotas', 'servicios', 'turnos', 'productos', 'gastos'];
+  const userId = auth.currentUser?.uid;
+
+  // Clear local storage keys
+  for (const collName of collections) {
+    const storageKey = userId ? `${userId}_${collName}` : collName;
+    localStorage.removeItem(getStorageKey(storageKey));
+    localStorage.removeItem(getStorageKey(collName));
+    localStorage.removeItem(`caningroom_${storageKey}`);
+    localStorage.removeItem(`caningroom_${collName}`);
+
+    // Try deleting Firestore docs
+    try {
+      const collRef = getUserCollectionRef(collName);
+      const snap = await getDocs(collRef);
+      for (const docSnap of snap.docs) {
+        await deleteDoc(docSnap.ref);
+      }
+    } catch (e) {
+      console.warn(`Error clearing Firestore collection ${collName}`, e);
+    }
   }
 }
 
