@@ -1,12 +1,10 @@
 {
-  "projectId": "resonant-tine-86pck",
-  "appId": "1:1004154166777:web:e99e08359b4a029ffd7128",
-  "apiKey": "AIzaSyAzr_YpnY_OS9oXA0RqHJvf2mKEiOIXO8o",
-  "authDomain": "resonant-tine-86pck.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-sistemadegestind-700c268d-b8ba-4663-9d6d-46b297067702",
-  "storageBucket": "resonant-tine-86pck.firebasestorage.app",
-  "messagingSenderId": "1004154166777",
-  "measurementId": "",
-  "oAuthClientId": "1004154166777-knvilf29382dv5kc549cmgtsb3rrt9tv.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "projectId": "peluqueria-4ad03",
+  "appId": "1:907989846583:web:aa75f9c4925b4901b2cdb2",
+  "apiKey": "AIzaSyD0rjsrzb5vagDJ-84REDhC9Z8I34AISSg",
+  "authDomain": "peluqueria-4ad03.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "peluqueria-4ad03.firebasestorage.app",
+  "messagingSenderId": "907989846583",
+  "measurementId": "G-GR44T3QYSC"
 }
