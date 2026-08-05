@@ -11,16 +11,13 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  declare props: Props;
-  public state: State;
+  public state: State = {
+    hasError: false,
+    error: null,
+  };
 
   constructor(props: Props) {
     super(props);
-    this.props = props;
-    this.state = {
-      hasError: false,
-      error: null,
-    };
   }
 
   public static getDerivedStateFromError(error: Error): State {
@@ -35,6 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       const errorMsg = this.state.error?.message || 'Error de ejecución inesperado.';
       const isDomainError = errorMsg.includes('unauthorized-domain') || errorMsg.includes('auth/unauthorized-domain');
+      const isRemoveChildError = errorMsg.includes('removeChild') || errorMsg.includes('is not a child of this node') || errorMsg.includes('insertBefore');
 
       return (
         <div className="min-h-screen bg-[#f6f7f7] dark:bg-[#0e1117] text-[#1d2327] dark:text-slate-100 flex flex-col items-center justify-center p-6 transition-colors">
@@ -44,15 +42,31 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-lg font-bold text-[#1d2327] dark:text-white">Atención: Error al cargar el sistema</h2>
+              <h2 className="text-lg font-bold text-[#1d2327] dark:text-white">
+                {isRemoveChildError ? 'Conflicto de Traducción Automática' : 'Atención: Error al cargar el sistema'}
+              </h2>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Se ha producido un detalle al inicializar la aplicación.
+                {isRemoveChildError 
+                  ? 'El traductor automático del navegador o una extensión modificó el contenido visual mientras la aplicación procesaba los datos.'
+                  : 'Se ha producido un detalle al inicializar la aplicación.'}
               </p>
             </div>
 
             <div className="p-3 bg-[#fcf0f1] dark:bg-rose-950/40 border border-[#d63638]/30 rounded-lg text-left text-xs font-mono text-[#d63638] dark:text-rose-300 overflow-x-auto max-h-32">
               {errorMsg}
             </div>
+
+            {isRemoveChildError && (
+              <div className="p-3 bg-blue-950/40 border border-blue-500/30 rounded-xl text-left text-xs text-blue-200 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-blue-300">
+                  <Globe className="w-4 h-4 shrink-0" />
+                  <span>Solución recomendada</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-blue-200/90">
+                  Desactiva la traducción automática para este sitio en la barra de direcciones de tu navegador Chrome / Google o haz clic en "Reintentar Cargar".
+                </p>
+              </div>
+            )}
 
             {isDomainError && (
               <div className="p-3 bg-amber-950/40 border border-amber-500/30 rounded-xl text-left text-xs text-amber-200 space-y-2">
@@ -71,7 +85,10 @@ export class ErrorBoundary extends Component<Props, State> {
             )}
 
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
               className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all"
             >
               <RefreshCw className="w-4 h-4" /> Reintentar Cargar

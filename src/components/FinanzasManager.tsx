@@ -32,7 +32,7 @@ export const FinanzasManager: React.FC<FinanzasManagerProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [concepto, setConcepto] = useState('');
   const [monto, setMonto] = useState<number>(0);
-  const [categoria, setCategoria] = useState('Insumos');
+  const [categoria, setCategoria] = useState<Gasto['categoria']>('Insumos');
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
   const [saving, setSaving] = useState(false);
 
@@ -59,7 +59,7 @@ export const FinanzasManager: React.FC<FinanzasManagerProps> = ({
     setSaving(true);
     try {
       await onSaveGasto({
-        concepto: concepto.trim(),
+        descripcion: concepto.trim(),
         monto: Number(monto),
         categoria,
         fecha,
@@ -165,7 +165,7 @@ export const FinanzasManager: React.FC<FinanzasManagerProps> = ({
             <tbody className="divide-y divide-[#c3c4c7] dark:divide-slate-800">
               {gastos.map(g => (
                 <tr key={g.id} className="hover:bg-[#f6f7f7] dark:hover:bg-[#0e1117]/60 transition-colors">
-                  <td className="px-4 py-2.5 font-semibold text-[#1d2327] dark:text-white">{g.concepto}</td>
+                  <td className="px-4 py-2.5 font-semibold text-[#1d2327] dark:text-white">{g.descripcion || (g as unknown as { concepto?: string }).concepto}</td>
                   <td className="px-4 py-2.5">
                     <span className="px-2 py-0.5 rounded bg-[#f0f6fc] dark:bg-indigo-950/40 text-[#2271b1] dark:text-[#72aee6] text-[10px] font-medium border border-[#2271b1]/30 dark:border-indigo-800/40">
                       {g.categoria}
@@ -243,14 +243,14 @@ export const FinanzasManager: React.FC<FinanzasManagerProps> = ({
                   <label className="text-xs font-semibold text-[#1d2327] dark:text-slate-300">Categoría</label>
                   <select
                     value={categoria}
-                    onChange={e => setCategoria(e.target.value)}
+                    onChange={e => setCategoria(e.target.value as Gasto['categoria'])}
                     className="w-full bg-white dark:bg-[#0e1117] border border-[#8c8f94] dark:border-slate-700 rounded px-3 py-1.5 text-xs text-[#2c3338] dark:text-slate-100 focus:border-[#2271b1]"
                   >
                     <option value="Insumos">Insumos & Shampoos</option>
-                    <option value="Herramientas">Herramientas & Maquinarias</option>
-                    <option value="Servicios">Servicios (Luz, Agua, Internet)</option>
-                    <option value="Alquiler">Alquiler del Local</option>
-                    <option value="Varios">Varios / Mantenimiento</option>
+                    <option value="Servicios & Alquiler">Servicios & Alquiler</option>
+                    <option value="Mantenimiento Equipos">Mantenimiento Equipos</option>
+                    <option value="Sueldos">Sueldos</option>
+                    <option value="Otros">Otros / Varios</option>
                   </select>
                 </div>
               </div>

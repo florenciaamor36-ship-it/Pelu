@@ -69,6 +69,7 @@ export const ClientesManager: React.FC<ClientesManagerProps> = ({
         nombre: formNombre,
         telefono: formTelefono,
         email: formEmail,
+        direccion: editingCliente?.direccion || '',
         notas: formNotas,
       });
       setIsModalOpen(false);
