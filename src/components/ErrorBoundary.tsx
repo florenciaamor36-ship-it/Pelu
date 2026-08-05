@@ -21,10 +21,29 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public static getDerivedStateFromError(error: Error): State {
+    const errorMsg = error?.message || '';
+    if (
+      errorMsg.includes('removeChild') ||
+      errorMsg.includes('insertBefore') ||
+      errorMsg.includes('replaceChild') ||
+      errorMsg.includes('is not a child of this node')
+    ) {
+      return { hasError: false, error: null };
+    }
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    const errorMsg = error?.message || '';
+    if (
+      errorMsg.includes('removeChild') ||
+      errorMsg.includes('insertBefore') ||
+      errorMsg.includes('replaceChild') ||
+      errorMsg.includes('is not a child of this node')
+    ) {
+      this.setState({ hasError: false, error: null });
+      return;
+    }
     console.error('Uncaught error in CaninGroom Pro:', error, errorInfo);
   }
 
