@@ -32,17 +32,22 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess, onGuestLogi
     setError(null);
     setLoading(true);
     try {
-      await loginWithGoogle();
-      setSuccessMsg('¡Sesión iniciada con Google exitosamente!');
-      setTimeout(() => {
-        onSuccess();
-      }, 500);
+      const user = await loginWithGoogle();
+      if (user) {
+        setSuccessMsg('¡Sesión iniciada con Google exitosamente!');
+        setTimeout(() => {
+          onSuccess();
+        }, 500);
+      }
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/unauthorized-domain' || err.message?.includes('unauthorized-domain')) {
-        setError(`El dominio actual no está autorizado en Firebase Auth. Puedes acceder usando "Modo Demostración".`);
+      const errStr = String(err?.message || err?.code || '');
+      if (err.code === 'auth/unauthorized-domain' || errStr.includes('unauthorized-domain')) {
+        setError(`El dominio "${window.location.hostname}" no está autorizado en la consola de Firebase. Agrega este dominio en Firebase Console > Authentication > Settings > Authorized domains, o inicia sesión con correo y contraseña.`);
+      } else if (errStr.includes('Database is closing') || errStr.includes('closing/hidden')) {
+        setError('El navegador interrumpió el almacenamiento de la ventana emergente. Vuelve a hacer clic en "Acceder con Google" o usa tu correo y contraseña.');
       } else if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
-        setError('El cuadro de diálogo fue cerrado. Usa correo y contraseña o Modo Demostración.');
+        setError('El cuadro de diálogo fue cerrado. Intenta de nuevo o utiliza tu correo y contraseña.');
       } else {
         setError(err.message || 'Error al iniciar sesión con Google.');
       }

@@ -9,6 +9,9 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+  inMemoryPersistence,
   User,
 } from 'firebase/auth';
 import {
@@ -29,6 +32,7 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 // Initialize Auth & Providers
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 // Initialize Firestore
 export const db =
@@ -36,45 +40,31 @@ export const db =
     ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
     : getFirestore(app);
 
-// Enable offline persistence if supported
-try {
-  enableIndexedDbPersistence(db).catch(err => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support all of the features required to enable persistence.');
-    }
+// Check for redirect result on app load (PWA / Mobile redirect support)
+if (typeof window !== 'undefined') {
+  getRedirectResult(auth).catch((err) => {
+    console.warn('Error processing Google redirect result:', err);
   });
-} catch (e) {
-  console.warn('Firestore persistence init warning:', e);
 }
 
-// Check for redirect result on app load (PWA / Mobile redirect support)
-getRedirectResult(auth).catch((err) => {
-  console.warn('Error processing Google redirect result:', err);
-});
-
-// Auth Helpers with PWA Popup/Redirect Fallback
+// Auth Helpers
 export const loginWithGoogle = async () => {
-  const isStandalonePWA =
-    window.matchMedia('(display-mode: standalone)').matches ||
-    ('standalone' in navigator && (navigator as any).standalone === true);
-
-  if (isStandalonePWA) {
-    // In standalone PWA, popups can fail or open in isolated browsers, so use redirect directly
-    await signInWithRedirect(auth, googleProvider);
-    return null;
-  }
-
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error: any) {
     console.warn('Popup login failed, attempting redirect fallback:', error);
+    const errCode = error?.code || '';
+    const errMsg = String(error?.message || '');
+
     if (
-      error.code === 'auth/popup-blocked' ||
-      error.code === 'auth/popup-closed-by-user' ||
-      error.code === 'auth/operation-not-supported-in-this-environment'
+      errCode === 'auth/popup-blocked' ||
+      errCode === 'auth/popup-closed-by-user' ||
+      errCode === 'auth/operation-not-supported-in-this-environment' ||
+      errCode === 'auth/internal-error' ||
+      errMsg.includes('closing') ||
+      errMsg.includes('hidden') ||
+      errMsg.includes('IndexedDB')
     ) {
       await signInWithRedirect(auth, googleProvider);
       return null;
