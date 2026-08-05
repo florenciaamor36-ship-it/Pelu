@@ -105,37 +105,37 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0a0c10]/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#12151c] border border-slate-800 rounded-xl w-full max-w-lg shadow-2xl overflow-hidden my-8">
-        <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-[#0a0c10]/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+      <div className="bg-white dark:bg-[#161b22] border border-[#c3c4c7] dark:border-slate-800 rounded w-full max-w-lg shadow-2xl overflow-hidden my-8 text-[#1d2327] dark:text-slate-100 transition-colors">
+        <div className="flex items-center justify-between p-4 border-b border-[#c3c4c7] dark:border-slate-800 bg-[#f0f0f1] dark:bg-[#0e1117]">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+            <div className="p-1.5 rounded bg-[#f0f6fc] dark:bg-indigo-950/40 border border-[#2271b1]/30 dark:border-indigo-800/40 text-[#2271b1] dark:text-[#72aee6]">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-white text-base">Agendar Turno de Peluquería</h3>
-              <p className="text-xs text-slate-400">Selecciona el perro y servicio de peluquería</p>
+              <h3 className="font-bold text-[#1d2327] dark:text-white text-sm">Agendar Turno de Peluquería</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Selecciona el perro y servicio de peluquería</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-slate-500 hover:text-[#1d2327] dark:hover:text-white hover:bg-[#e0e0e0] dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 space-y-3">
           {/* DOG SELECTOR */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Dog className="w-4 h-4 text-indigo-400" />
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-[#2c3338] dark:text-slate-200 flex items-center gap-1.5">
+              <Dog className="w-4 h-4 text-[#2271b1] dark:text-[#72aee6]" />
               Seleccionar Perro / Mascota *
             </label>
             <select
               value={selectedMascotaId}
               onChange={e => setSelectedMascotaId(e.target.value)}
-              className="w-full bg-[#0a0c10] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+              className="w-full bg-white dark:bg-[#0e1117] border border-[#8c8f94] dark:border-slate-700 rounded px-3 py-1.5 text-xs text-[#2c3338] dark:text-slate-100 focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1]"
             >
               {mascotas.map(m => (
                 <option key={m.id} value={m.id}>
@@ -146,43 +146,43 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
 
             {/* Selected Dog Preview Card */}
             {selectedMascota && (
-              <div className="p-3 bg-[#0a0c10] border border-slate-800 rounded-lg flex items-start gap-3">
+              <div className="p-2.5 bg-[#f6f7f7] dark:bg-[#0e1117] border border-[#c3c4c7] dark:border-slate-800 rounded flex items-start gap-3">
                 <img
                   src={selectedMascota.foto_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=300'}
                   alt={selectedMascota.nombre}
-                  className="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0"
+                  className="w-11 h-11 rounded object-cover border border-[#c3c4c7] dark:border-slate-700 shrink-0"
                 />
                 <div className="text-xs space-y-1 min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="font-bold text-white">{selectedMascota.nombre} ({selectedMascota.raza})</p>
+                    <p className="font-bold text-[#1d2327] dark:text-white">{selectedMascota.nombre} ({selectedMascota.raza})</p>
                     {selectedMascota.usa_bozal ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#fcf0f1] dark:bg-rose-950/40 text-[#d63638] dark:text-rose-400 border border-[#d63638]/30">
                         ⚠️ USA BOZAL
                       </span>
                     ) : (
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-400">
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#e0e0e0] dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                         Sin bozal
                       </span>
                     )}
                   </div>
 
-                  <p className="text-slate-400 text-[11px] truncate">
+                  <p className="text-slate-600 dark:text-slate-400 text-[11px] truncate">
                     Dueño: {selectedMascota.cliente?.nombre} • Tel: {selectedMascota.cliente?.telefono}
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-2 text-[10px] pt-1">
-                    <span className="text-emerald-400 flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] pt-0.5">
+                    <span className="text-[#00a32a] dark:text-emerald-400 flex items-center gap-1 font-semibold">
                       <Syringe className="w-3 h-3" /> Últ. Vacuna: {selectedMascota.fecha_ultima_vacunacion ? new Date(selectedMascota.fecha_ultima_vacunacion + 'T00:00:00').toLocaleDateString('es-AR') : 'S/D'}
                     </span>
                     <span className="text-slate-400">•</span>
-                    <span className="text-cyan-400 flex items-center gap-1">
-                      {selectedMascota.transporte_llegada === 'En vehículo' ? <Car className="w-3 h-3" /> : selectedMascota.transporte_llegada === 'Retiro a domicilio' ? <Truck className="w-3 h-3" /> : <Footprints className="w-3 h-3" />}
+                    <span className="text-[#2271b1] dark:text-[#72aee6] flex items-center gap-1 font-medium">
+                      {selectedMascota.transporte_llegada === 'En vehículo' ? <Car className="w-3 h-3" /> : selectedMascota.transporte_llegada === 'Retiro a domicilio' ? <Truck className="w-3 h-3 text-[#dba617]" /> : <Footprints className="w-3 h-3" />}
                       {selectedMascota.transporte_llegada || 'Caminando'}
                     </span>
                   </div>
 
                   {selectedMascota.alergias_afecciones && (
-                    <p className="text-rose-400 text-[11px] flex items-center gap-1 font-semibold truncate pt-0.5">
+                    <p className="text-[#d63638] dark:text-rose-400 text-[11px] flex items-center gap-1 font-semibold truncate pt-0.5">
                       <ShieldAlert className="w-3 h-3 shrink-0" /> Piel: {selectedMascota.alergias_afecciones}
                     </p>
                   )}
@@ -192,15 +192,15 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
           </div>
 
           {/* SERVICE SELECTOR */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Briefcase className="w-4 h-4 text-indigo-400" />
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-[#2c3338] dark:text-slate-200 flex items-center gap-1.5">
+              <Briefcase className="w-4 h-4 text-[#2271b1] dark:text-[#72aee6]" />
               Servicio de Peluquería
             </label>
             <select
               value={selectedServicioId}
               onChange={e => handleServicioChange(e.target.value)}
-              className="w-full bg-[#0a0c10] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+              className="w-full bg-white dark:bg-[#0e1117] border border-[#8c8f94] dark:border-slate-700 rounded px-3 py-1.5 text-xs text-[#2c3338] dark:text-slate-100 focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1]"
             >
               {servicios.map(srv => (
                 <option key={srv.id} value={srv.id}>
@@ -212,9 +212,9 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
 
           {/* DATE & TIME */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-indigo-400" />
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-[#2c3338] dark:text-slate-200 flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-[#2271b1] dark:text-[#72aee6]" />
                 Fecha
               </label>
               <input
@@ -222,12 +222,12 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
                 required
                 value={fecha}
                 onChange={e => setFecha(e.target.value)}
-                className="w-full bg-[#0a0c10] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-white dark:bg-[#0e1117] border border-[#8c8f94] dark:border-slate-700 rounded px-3 py-1.5 text-xs text-[#2c3338] dark:text-slate-100 focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1]"
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-indigo-400" />
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-[#2c3338] dark:text-slate-200 flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-[#2271b1] dark:text-[#72aee6]" />
                 Hora
               </label>
               <input
@@ -235,19 +235,19 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
                 required
                 value={hora}
                 onChange={e => setHora(e.target.value)}
-                className="w-full bg-[#0a0c10] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-white dark:bg-[#0e1117] border border-[#8c8f94] dark:border-slate-700 rounded px-3 py-1.5 text-xs text-[#2c3338] dark:text-slate-100 focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1]"
               />
             </div>
           </div>
 
           {/* STATUS & PRICE */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Estado Inicial</label>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-[#2c3338] dark:text-slate-200">Estado Inicial</label>
               <select
                 value={estado}
                 onChange={e => setEstado(e.target.value as TurnoEstado)}
-                className="w-full bg-[#0a0c10] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-white dark:bg-[#0e1117] border border-[#8c8f94] dark:border-slate-700 rounded px-3 py-1.5 text-xs text-[#2c3338] dark:text-slate-100 focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1]"
               >
                 <option value="confirmado">Confirmado</option>
                 <option value="en_proceso">En Peluquería</option>
@@ -256,9 +256,9 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
                 <option value="cancelado">Cancelado</option>
               </select>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4 text-indigo-400" />
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-[#2c3338] dark:text-slate-200 flex items-center gap-1.5">
+                <DollarSign className="w-4 h-4 text-[#2271b1] dark:text-[#72aee6]" />
                 Precio ($ ARS)
               </label>
               <input
@@ -266,15 +266,15 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
                 min="0"
                 value={precio}
                 onChange={e => setPrecio(Number(e.target.value))}
-                className="w-full bg-[#0a0c10] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+                className="w-full bg-white dark:bg-[#0e1117] border border-[#8c8f94] dark:border-slate-700 rounded px-3 py-1.5 text-xs text-[#2c3338] dark:text-slate-100 font-mono focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1]"
               />
             </div>
           </div>
 
           {/* NOTES */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-indigo-400" />
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-[#2c3338] dark:text-slate-200 flex items-center gap-1.5">
+              <FileText className="w-4 h-4 text-[#2271b1] dark:text-[#72aee6]" />
               Indicaciones del Turno
             </label>
             <textarea
@@ -282,22 +282,22 @@ export const NewTurnoModal: React.FC<NewTurnoModalProps> = ({
               placeholder="Ej: Pedir moño rojo, bañar con shampoo avena, cuidado en oídos..."
               value={notas}
               onChange={e => setNotas(e.target.value)}
-              className="w-full bg-[#0a0c10] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
+              className="w-full bg-white dark:bg-[#0e1117] border border-[#8c8f94] dark:border-slate-700 rounded px-3 py-1.5 text-xs text-[#2c3338] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1] resize-none"
             />
           </div>
 
-          <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-[#c3c4c7] dark:border-slate-800 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-[#1d2327] dark:hover:text-white transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg shadow-lg shadow-indigo-500/20 active:scale-95 transition-all disabled:opacity-50"
+              className="px-4 py-1.5 bg-[#2271b1] hover:bg-[#135e96] text-white text-xs font-semibold rounded shadow-xs transition-colors disabled:opacity-50"
             >
               {loading ? 'Guardando...' : 'Confirmar & Agendar Turno'}
             </button>

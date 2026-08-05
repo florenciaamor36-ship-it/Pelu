@@ -147,17 +147,10 @@ CREATE POLICY "Anon Gastos" ON public.gastos FOR ALL USING (true) WITH CHECK (tr
 CREATE POLICY "Anon Horarios" ON public.horarios_disponibilidad FOR ALL USING (true) WITH CHECK (true);
 `;
 
-// Helper to check if an item is sample data
+// Helper to check if an item is explicit sample data (e.g. sample-)
 function isSampleId(id: string): boolean {
   if (!id) return false;
-  return (
-    id.startsWith('cli-') ||
-    id.startsWith('mas-') ||
-    id.startsWith('srv-') ||
-    id.startsWith('prod-') ||
-    id.startsWith('gas-') ||
-    id.startsWith('tur-')
-  );
+  return id.startsWith('sample-') || id.startsWith('demo-');
 }
 
 // Local Storage helpers
@@ -246,15 +239,40 @@ function getUserDocRef(collName: string, id: string) {
   return doc(db, 'public_demo', collName, id);
 }
 
+// Timeout helper for network calls to ensure immediate local fallback when offline
+function withTimeout<T>(promiseLike: PromiseLike<any>, timeoutMs = 2000): Promise<T> {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    return Promise.reject(new Error('Offline'));
+  }
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Network timeout')), timeoutMs);
+    Promise.resolve(promiseLike)
+      .then((res) => {
+        clearTimeout(timer);
+        resolve(res as T);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+  });
+}
+
 // Firestore Helper Functions for automatic cloud persistence & local fallback
 async function fetchFirestoreCollection<T extends { id: string }>(collName: string, initialData: T[]): Promise<T[]> {
+  const storageKey = auth.currentUser?.uid ? `${auth.currentUser.uid}_${collName}` : collName;
+  const localItems = getStorage<T[]>(storageKey, initialData) || [];
+
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    return localItems.filter(i => !isSampleId(i.id));
+  }
+
   try {
     const collRef = getUserCollectionRef(collName);
-    const snap = await getDocs(collRef);
-    const storageKey = auth.currentUser?.uid ? `${auth.currentUser.uid}_${collName}` : collName;
-    if (!snap.empty) {
+    const snap = await withTimeout<any>(getDocs(collRef), 2000);
+    if (snap && !snap.empty) {
       const items: T[] = [];
-      snap.forEach(d => {
+      snap.forEach((d: any) => {
         const item = d.data() as T;
         if (!isSampleId(item.id)) {
           items.push(item);
@@ -263,21 +281,13 @@ async function fetchFirestoreCollection<T extends { id: string }>(collName: stri
       setStorage(storageKey, items);
       return items;
     } else {
-      // If collection is empty, only seed if initialData is provided (e.g. horarios default)
       const cleanInitial = (initialData || []).filter(i => !isSampleId(i.id));
-      if (cleanInitial.length > 0) {
-        for (const item of cleanInitial) {
-          await setDoc(getUserDocRef(collName, item.id), item);
-        }
-      }
       setStorage(storageKey, cleanInitial);
       return cleanInitial;
     }
   } catch (err) {
-    console.warn(`Firestore collection ${collName} fetch failed, using local storage fallback:`, err);
-    const storageKey = auth.currentUser?.uid ? `${auth.currentUser.uid}_${collName}` : collName;
-    const local = getStorage<T[]>(storageKey, initialData);
-    return (local || []).filter(i => !isSampleId(i.id));
+    console.warn(`Firestore collection ${collName} fetch failed or timed out, returning local cache:`, err);
+    return localItems.filter(i => !isSampleId(i.id));
   }
 }
 
@@ -294,12 +304,14 @@ export async function clearAllDatabaseData(): Promise<void> {
     localStorage.removeItem(`caningroom_${storageKey}`);
     localStorage.removeItem(`caningroom_${collName}`);
 
-    // Try deleting Firestore docs
+    // Try deleting Firestore docs in background
     try {
       const collRef = getUserCollectionRef(collName);
-      const snap = await getDocs(collRef);
-      for (const docSnap of snap.docs) {
-        await deleteDoc(docSnap.ref);
+      const snap = await withTimeout<any>(getDocs(collRef), 2000);
+      if (snap && snap.docs) {
+        for (const docSnap of snap.docs) {
+          deleteDoc(docSnap.ref).catch(() => {});
+        }
       }
     } catch (e) {
       console.warn(`Error clearing Firestore collection ${collName}`, e);
@@ -308,19 +320,15 @@ export async function clearAllDatabaseData(): Promise<void> {
 }
 
 async function saveFirestoreDocument<T extends { id: string }>(collName: string, item: T): Promise<void> {
-  try {
-    await setDoc(getUserDocRef(collName, item.id), item);
-  } catch (err) {
-    console.warn(`Firestore save to ${collName} failed, fallback to local:`, err);
-  }
+  withTimeout(setDoc(getUserDocRef(collName, item.id), item), 2500).catch(err => {
+    console.warn(`Cloud sync for ${collName} deferred or offline:`, err);
+  });
 }
 
 async function deleteFirestoreDocument(collName: string, id: string): Promise<void> {
-  try {
-    await deleteDoc(getUserDocRef(collName, id));
-  } catch (err) {
-    console.warn(`Firestore delete from ${collName} failed:`, err);
-  }
+  withTimeout(deleteDoc(getUserDocRef(collName, id)), 2500).catch(err => {
+    console.warn(`Cloud delete for ${collName} deferred or offline:`, err);
+  });
 }
 
 // CLIENTES API
@@ -328,7 +336,7 @@ export async function fetchClientes(): Promise<Cliente[]> {
   const sb = getSupabaseInstance();
   if (sb) {
     try {
-      const { data, error } = await sb.from('clientes').select('*').order('nombre');
+      const { data, error } = await withTimeout<any>(sb.from('clientes').select('*').order('nombre'), 2000);
       if (!error && data && data.length > 0) return data as Cliente[];
     } catch (err) {
       console.warn('Supabase fetch clientes failed, using Firestore/local', err);
@@ -338,7 +346,6 @@ export async function fetchClientes(): Promise<Cliente[]> {
 }
 
 export async function saveCliente(cliente: Omit<Cliente, 'id' | 'created_at'> & { id?: string }): Promise<Cliente> {
-  const sb = getSupabaseInstance();
   const id = cliente.id || `cli-${Date.now()}`;
   const newCliente: Cliente = {
     id,
@@ -350,40 +357,35 @@ export async function saveCliente(cliente: Omit<Cliente, 'id' | 'created_at'> & 
     created_at: new Date().toISOString(),
   };
 
-  if (sb) {
-    try {
-      if (cliente.id) {
-        await sb.from('clientes').update(newCliente).eq('id', cliente.id);
-      } else {
-        await sb.from('clientes').insert(newCliente);
-      }
-    } catch (err) {
-      console.warn('Supabase save cliente failed', err);
-    }
-  }
-
-  await saveFirestoreDocument('clientes', newCliente);
-
+  // 1. Immediately update local storage for 100% offline reliability
   const clientes = getStorage<Cliente[]>('clientes', INITIAL_CLIENTES);
   const index = clientes.findIndex(c => c.id === id);
   if (index >= 0) clientes[index] = newCliente;
   else clientes.push(newCliente);
   setStorage('clientes', clientes);
+
+  // 2. Non-blocking cloud syncs
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(
+      cliente.id ? sb.from('clientes').update(newCliente).eq('id', id) : sb.from('clientes').insert(newCliente),
+      2500
+    ).catch(err => console.warn('Supabase save cliente deferred/offline', err));
+  }
+  saveFirestoreDocument('clientes', newCliente);
+
   return newCliente;
 }
 
 export async function deleteCliente(id: string): Promise<void> {
-  const sb = getSupabaseInstance();
-  if (sb) {
-    try {
-      await sb.from('clientes').delete().eq('id', id);
-    } catch (e) {
-      console.warn('Supabase delete client failed', e);
-    }
-  }
-  await deleteFirestoreDocument('clientes', id);
   const clientes = getStorage<Cliente[]>('clientes', INITIAL_CLIENTES).filter(c => c.id !== id);
   setStorage('clientes', clientes);
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(sb.from('clientes').delete().eq('id', id), 2500).catch(e => console.warn('Supabase delete client failed', e));
+  }
+  deleteFirestoreDocument('clientes', id);
 }
 
 // MASCOTAS API
@@ -394,7 +396,7 @@ export async function fetchMascotas(): Promise<Mascota[]> {
 
   if (sb) {
     try {
-      const { data, error } = await sb.from('mascotas').select('*').order('nombre');
+      const { data, error } = await withTimeout<any>(sb.from('mascotas').select('*').order('nombre'), 2000);
       if (!error && data && data.length > 0) rawMascotas = data as Mascota[];
       else rawMascotas = await fetchFirestoreCollection<Mascota>('mascotas', INITIAL_MASCOTAS);
     } catch (err) {
@@ -411,7 +413,6 @@ export async function fetchMascotas(): Promise<Mascota[]> {
 }
 
 export async function saveMascota(mascota: Omit<Mascota, 'id' | 'created_at'> & { id?: string }): Promise<Mascota> {
-  const sb = getSupabaseInstance();
   const id = mascota.id || `mas-${Date.now()}`;
   const newMascota: Mascota = {
     ...mascota,
@@ -419,27 +420,25 @@ export async function saveMascota(mascota: Omit<Mascota, 'id' | 'created_at'> & 
     created_at: new Date().toISOString(),
   };
 
-  if (sb) {
-    try {
-      if (mascota.id) {
-        await sb.from('mascotas').update(newMascota).eq('id', id);
-      } else {
-        await sb.from('mascotas').insert(newMascota);
-      }
-    } catch (err) {
-      console.warn('Supabase save mascota error', err);
-    }
-  }
-
-  await saveFirestoreDocument('mascotas', newMascota);
-
+  // 1. Immediately update local storage so pet card is saved 100% reliably
   const mascotas = getStorage<Mascota[]>('mascotas', INITIAL_MASCOTAS);
   const index = mascotas.findIndex(m => m.id === id);
   if (index >= 0) mascotas[index] = newMascota;
   else mascotas.push(newMascota);
   setStorage('mascotas', mascotas);
 
-  const clientes = await fetchClientes();
+  // 2. Non-blocking cloud syncs
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(
+      mascota.id ? sb.from('mascotas').update(newMascota).eq('id', id) : sb.from('mascotas').insert(newMascota),
+      2500
+    ).catch(err => console.warn('Supabase save mascota error/offline', err));
+  }
+  saveFirestoreDocument('mascotas', newMascota);
+
+  // Read client from local storage cache for instant response
+  const clientes = getStorage<Cliente[]>('clientes', INITIAL_CLIENTES);
   return {
     ...newMascota,
     cliente: clientes.find(c => c.id === newMascota.cliente_id),
@@ -475,44 +474,36 @@ export async function fetchServicios(): Promise<Servicio[]> {
 }
 
 export async function saveServicio(servicio: Omit<Servicio, 'id'> & { id?: string }): Promise<Servicio> {
-  const sb = getSupabaseInstance();
   const id = servicio.id || `srv-${Date.now()}`;
   const newServicio: Servicio = { ...servicio, id };
-
-  if (sb) {
-    try {
-      if (servicio.id) {
-        await sb.from('servicios').update(newServicio).eq('id', id);
-      } else {
-        await sb.from('servicios').insert(newServicio);
-      }
-    } catch (err) {
-      console.warn('Supabase save servicio failed', err);
-    }
-  }
-
-  await saveFirestoreDocument('servicios', newServicio);
 
   const servicios = getStorage<Servicio[]>('servicios', INITIAL_SERVICIOS);
   const index = servicios.findIndex(s => s.id === id);
   if (index >= 0) servicios[index] = newServicio;
   else servicios.push(newServicio);
   setStorage('servicios', servicios);
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(
+      servicio.id ? sb.from('servicios').update(newServicio).eq('id', id) : sb.from('servicios').insert(newServicio),
+      2500
+    ).catch(err => console.warn('Supabase save servicio failed', err));
+  }
+  saveFirestoreDocument('servicios', newServicio);
+
   return newServicio;
 }
 
 export async function deleteServicio(id: string): Promise<void> {
-  const sb = getSupabaseInstance();
-  if (sb) {
-    try {
-      await sb.from('servicios').delete().eq('id', id);
-    } catch (e) {
-      console.warn('Supabase delete servicio error', e);
-    }
-  }
-  await deleteFirestoreDocument('servicios', id);
   const servicios = getStorage<Servicio[]>('servicios', INITIAL_SERVICIOS).filter(s => s.id !== id);
   setStorage('servicios', servicios);
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(sb.from('servicios').delete().eq('id', id), 2500).catch(e => console.warn('Supabase delete servicio error', e));
+  }
+  deleteFirestoreDocument('servicios', id);
 }
 
 // TURNOS API
@@ -526,7 +517,7 @@ export async function fetchTurnos(): Promise<Turno[]> {
 
   if (sb) {
     try {
-      const { data, error } = await sb.from('turnos').select('*').order('fecha_hora', { ascending: true });
+      const { data, error } = await withTimeout<any>(sb.from('turnos').select('*').order('fecha_hora', { ascending: true }), 2000);
       if (!error && data && data.length > 0) rawTurnos = data as Turno[];
       else rawTurnos = await fetchFirestoreCollection<Turno>('turnos', INITIAL_TURNOS);
     } catch (err) {
@@ -550,7 +541,6 @@ export async function fetchTurnos(): Promise<Turno[]> {
 }
 
 export async function saveTurno(turno: Omit<Turno, 'id' | 'created_at'> & { id?: string }): Promise<Turno> {
-  const sb = getSupabaseInstance();
   const id = turno.id || `tur-${Date.now()}`;
   const newTurno: Turno = {
     id,
@@ -565,29 +555,24 @@ export async function saveTurno(turno: Omit<Turno, 'id' | 'created_at'> & { id?:
     created_at: new Date().toISOString(),
   };
 
-  if (sb) {
-    try {
-      if (turno.id) {
-        await sb.from('turnos').update(newTurno).eq('id', id);
-      } else {
-        await sb.from('turnos').insert(newTurno);
-      }
-    } catch (err) {
-      console.warn('Supabase save turno failed', err);
-    }
-  }
-
-  await saveFirestoreDocument('turnos', newTurno);
-
   const turnos = getStorage<Turno[]>('turnos', INITIAL_TURNOS);
   const index = turnos.findIndex(t => t.id === id);
   if (index >= 0) turnos[index] = newTurno;
   else turnos.push(newTurno);
   setStorage('turnos', turnos);
 
-  const mascotas = await fetchMascotas();
-  const clientes = await fetchClientes();
-  const servicios = await fetchServicios();
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(
+      turno.id ? sb.from('turnos').update(newTurno).eq('id', id) : sb.from('turnos').insert(newTurno),
+      2500
+    ).catch(err => console.warn('Supabase save turno failed', err));
+  }
+  saveFirestoreDocument('turnos', newTurno);
+
+  const mascotas = getStorage<Mascota[]>('mascotas', INITIAL_MASCOTAS);
+  const clientes = getStorage<Cliente[]>('clientes', INITIAL_CLIENTES);
+  const servicios = getStorage<Servicio[]>('servicios', INITIAL_SERVICIOS);
   const mascota = mascotas.find(m => m.id === newTurno.mascota_id);
   return {
     ...newTurno,
@@ -598,36 +583,29 @@ export async function saveTurno(turno: Omit<Turno, 'id' | 'created_at'> & { id?:
 }
 
 export async function updateTurnoEstado(id: string, estado: Turno['estado']): Promise<void> {
-  const sb = getSupabaseInstance();
-  if (sb) {
-    try {
-      await sb.from('turnos').update({ estado }).eq('id', id);
-    } catch (e) {
-      console.warn('Supabase update status failed', e);
-    }
-  }
-
   const turnos = getStorage<Turno[]>('turnos', INITIAL_TURNOS);
   const index = turnos.findIndex(t => t.id === id);
   if (index >= 0) {
     turnos[index].estado = estado;
-    await saveFirestoreDocument('turnos', turnos[index]);
     setStorage('turnos', turnos);
+    saveFirestoreDocument('turnos', turnos[index]);
+  }
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(sb.from('turnos').update({ estado }).eq('id', id), 2500).catch(e => console.warn('Supabase update status failed', e));
   }
 }
 
 export async function deleteTurno(id: string): Promise<void> {
-  const sb = getSupabaseInstance();
-  if (sb) {
-    try {
-      await sb.from('turnos').delete().eq('id', id);
-    } catch (e) {
-      console.warn('Supabase delete turno error', e);
-    }
-  }
-  await deleteFirestoreDocument('turnos', id);
   const turnos = getStorage<Turno[]>('turnos', INITIAL_TURNOS).filter(t => t.id !== id);
   setStorage('turnos', turnos);
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(sb.from('turnos').delete().eq('id', id), 2500).catch(e => console.warn('Supabase delete turno error', e));
+  }
+  deleteFirestoreDocument('turnos', id);
 }
 
 // PRODUCTOS / STOCK API
@@ -635,7 +613,7 @@ export async function fetchProductos(): Promise<Producto[]> {
   const sb = getSupabaseInstance();
   if (sb) {
     try {
-      const { data, error } = await sb.from('productos').select('*').order('nombre');
+      const { data, error } = await withTimeout<any>(sb.from('productos').select('*').order('nombre'), 2000);
       if (!error && data && data.length > 0) return data as Producto[];
     } catch (err) {
       console.warn('Supabase fetch productos failed', err);
@@ -645,44 +623,36 @@ export async function fetchProductos(): Promise<Producto[]> {
 }
 
 export async function saveProducto(producto: Omit<Producto, 'id'> & { id?: string }): Promise<Producto> {
-  const sb = getSupabaseInstance();
   const id = producto.id || `prod-${Date.now()}`;
   const newProducto: Producto = { ...producto, id };
-
-  if (sb) {
-    try {
-      if (producto.id) {
-        await sb.from('productos').update(newProducto).eq('id', id);
-      } else {
-        await sb.from('productos').insert(newProducto);
-      }
-    } catch (err) {
-      console.warn('Supabase save producto failed', err);
-    }
-  }
-
-  await saveFirestoreDocument('productos', newProducto);
 
   const productos = getStorage<Producto[]>('productos', INITIAL_PRODUCTOS);
   const index = productos.findIndex(p => p.id === id);
   if (index >= 0) productos[index] = newProducto;
   else productos.push(newProducto);
   setStorage('productos', productos);
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(
+      producto.id ? sb.from('productos').update(newProducto).eq('id', id) : sb.from('productos').insert(newProducto),
+      2500
+    ).catch(err => console.warn('Supabase save producto failed', err));
+  }
+  saveFirestoreDocument('productos', newProducto);
+
   return newProducto;
 }
 
 export async function deleteProducto(id: string): Promise<void> {
-  const sb = getSupabaseInstance();
-  if (sb) {
-    try {
-      await sb.from('productos').delete().eq('id', id);
-    } catch (e) {
-      console.warn('Supabase delete producto error', e);
-    }
-  }
-  await deleteFirestoreDocument('productos', id);
   const productos = getStorage<Producto[]>('productos', INITIAL_PRODUCTOS).filter(p => p.id !== id);
   setStorage('productos', productos);
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(sb.from('productos').delete().eq('id', id), 2500).catch(e => console.warn('Supabase delete producto error', e));
+  }
+  deleteFirestoreDocument('productos', id);
 }
 
 // GASTOS API
@@ -690,7 +660,7 @@ export async function fetchGastos(): Promise<Gasto[]> {
   const sb = getSupabaseInstance();
   if (sb) {
     try {
-      const { data, error } = await sb.from('gastos').select('*').order('fecha', { ascending: false });
+      const { data, error } = await withTimeout<any>(sb.from('gastos').select('*').order('fecha', { ascending: false }), 2000);
       if (!error && data && data.length > 0) return data as Gasto[];
     } catch (err) {
       console.warn('Supabase fetch gastos failed', err);
@@ -700,44 +670,36 @@ export async function fetchGastos(): Promise<Gasto[]> {
 }
 
 export async function saveGasto(gasto: Omit<Gasto, 'id'> & { id?: string }): Promise<Gasto> {
-  const sb = getSupabaseInstance();
   const id = gasto.id || `gas-${Date.now()}`;
   const newGasto: Gasto = { ...gasto, id };
-
-  if (sb) {
-    try {
-      if (gasto.id) {
-        await sb.from('gastos').update(newGasto).eq('id', id);
-      } else {
-        await sb.from('gastos').insert(newGasto);
-      }
-    } catch (err) {
-      console.warn('Supabase save gasto failed', err);
-    }
-  }
-
-  await saveFirestoreDocument('gastos', newGasto);
 
   const gastos = getStorage<Gasto[]>('gastos', INITIAL_GASTOS);
   const index = gastos.findIndex(g => g.id === id);
   if (index >= 0) gastos[index] = newGasto;
   else gastos.push(newGasto);
   setStorage('gastos', gastos);
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(
+      gasto.id ? sb.from('gastos').update(newGasto).eq('id', id) : sb.from('gastos').insert(newGasto),
+      2500
+    ).catch(err => console.warn('Supabase save gasto failed', err));
+  }
+  saveFirestoreDocument('gastos', newGasto);
+
   return newGasto;
 }
 
 export async function deleteGasto(id: string): Promise<void> {
-  const sb = getSupabaseInstance();
-  if (sb) {
-    try {
-      await sb.from('gastos').delete().eq('id', id);
-    } catch (e) {
-      console.warn('Supabase delete gasto error', e);
-    }
-  }
-  await deleteFirestoreDocument('gastos', id);
   const gastos = getStorage<Gasto[]>('gastos', INITIAL_GASTOS).filter(g => g.id !== id);
   setStorage('gastos', gastos);
+
+  const sb = getSupabaseInstance();
+  if (sb) {
+    withTimeout(sb.from('gastos').delete().eq('id', id), 2500).catch(e => console.warn('Supabase delete gasto error', e));
+  }
+  deleteFirestoreDocument('gastos', id);
 }
 
 // HORARIOS DISPONIBILIDAD API
@@ -755,18 +717,15 @@ export async function fetchHorarios(): Promise<HorarioDisponibilidad[]> {
 }
 
 export async function saveHorarios(horarios: HorarioDisponibilidad[]): Promise<void> {
+  setStorage('horarios', horarios);
+
   const sb = getSupabaseInstance();
   if (sb) {
-    try {
-      await sb.from('horarios_disponibilidad').upsert(horarios);
-    } catch (e) {
-      console.warn('Supabase save horarios failed', e);
-    }
+    withTimeout(sb.from('horarios_disponibilidad').upsert(horarios), 2500).catch(e => console.warn('Supabase save horarios failed', e));
   }
   for (const h of horarios) {
-    await saveFirestoreDocument('horarios', h);
+    saveFirestoreDocument('horarios', h);
   }
-  setStorage('horarios', horarios);
 }
 
 // PERFIL PELUQUERÍA API
@@ -792,8 +751,8 @@ export async function fetchPerfilPeluqueria(): Promise<PerfilPeluqueria> {
 
 export async function savePerfilPeluqueria(perfil: PerfilPeluqueria): Promise<PerfilPeluqueria> {
   const perfilToSave = { ...perfil, id: 'perfil-main' };
-  await saveFirestoreDocument('perfil', perfilToSave);
   setStorage('perfil', [perfilToSave]);
+  saveFirestoreDocument('perfil', perfilToSave);
   return perfilToSave;
 }
 

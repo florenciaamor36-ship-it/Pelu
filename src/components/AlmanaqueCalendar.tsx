@@ -133,32 +133,32 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
     switch (estado) {
       case 'completado':
         return {
-          bg: 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300',
-          dot: 'bg-emerald-400',
+          bg: 'bg-[#f0f6e8] dark:bg-emerald-950/40 border-[#00a32a]/30 dark:border-emerald-800/40 text-[#00a32a] dark:text-emerald-400',
+          dot: 'bg-[#00a32a]',
           label: 'Completado'
         };
       case 'en_proceso':
         return {
-          bg: 'bg-blue-950/80 border-blue-500/40 text-blue-300',
-          dot: 'bg-blue-400 animate-pulse',
+          bg: 'bg-[#f0f6fc] dark:bg-indigo-950/40 border-[#2271b1]/30 dark:border-indigo-800/40 text-[#2271b1] dark:text-indigo-400',
+          dot: 'bg-[#2271b1] animate-pulse',
           label: 'En Baño/Corte'
         };
       case 'confirmado':
         return {
-          bg: 'bg-indigo-950/80 border-indigo-500/40 text-indigo-300',
-          dot: 'bg-indigo-400',
+          bg: 'bg-[#f0f6fc] dark:bg-indigo-950/40 border-[#2271b1]/30 dark:border-indigo-800/40 text-[#2271b1] dark:text-indigo-400',
+          dot: 'bg-[#2271b1]',
           label: 'Confirmado'
         };
       case 'cancelado':
         return {
-          bg: 'bg-rose-950/50 border-rose-500/30 text-rose-400 line-through opacity-60',
-          dot: 'bg-rose-500',
+          bg: 'bg-[#fcf0f1] dark:bg-rose-950/40 border-[#d63638]/30 dark:border-rose-800/40 text-[#d63638] dark:text-rose-400 line-through opacity-70',
+          dot: 'bg-[#d63638]',
           label: 'Cancelado'
         };
       default:
         return {
-          bg: 'bg-amber-950/80 border-amber-500/40 text-amber-300',
-          dot: 'bg-amber-400',
+          bg: 'bg-[#fff8e5] dark:bg-amber-950/40 border-[#dba617]/30 dark:border-amber-800/40 text-[#996800] dark:text-amber-400',
+          dot: 'bg-[#dba617]',
           label: 'Pendiente'
         };
     }
@@ -215,39 +215,39 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Calendar Header / Toolbar */}
-      <div className="bg-[#12151c] border border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#161b22] border border-[#c3c4c7] dark:border-slate-800 rounded p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-md shrink-0">
-            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="p-2 rounded bg-[#f0f6fc] dark:bg-[#2271b1]/15 text-[#2271b1] dark:text-[#72aee6] border border-[#2271b1]/20 shrink-0">
+            <CalendarIcon className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
-              Almanaque & Agenda
+            <h2 className="text-base font-bold text-[#1d2327] dark:text-white leading-tight">
+              Almanaque & Agenda Mensual
             </h2>
-            <p className="text-xs text-slate-400">
-              Calendario mensual de turnos caninos.
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Visualización de turnos programados en el salón.
             </p>
           </div>
         </div>
 
         {/* Month Selector Controls */}
         <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2">
-          <div className="flex items-center gap-1 bg-[#0a0c10] p-1 border border-slate-800 rounded-xl">
+          <div className="flex items-center gap-1 bg-[#f0f0f1] dark:bg-[#0e1117] p-1 border border-[#c3c4c7] dark:border-slate-700 rounded">
             <button
               onClick={prevMonth}
-              className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1 rounded text-slate-600 dark:text-slate-300 hover:text-[#1d2327] dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 transition-colors"
               title="Mes anterior"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-bold text-xs sm:text-sm text-white px-2 sm:px-3 font-mono text-center min-w-[110px] sm:min-w-[140px]">
+            <span className="font-bold text-xs sm:text-sm text-[#1d2327] dark:text-white px-2 font-mono text-center min-w-[110px] sm:min-w-[130px]">
               {monthNames[month]} {year}
             </span>
             <button
               onClick={nextMonth}
-              className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1 rounded text-slate-600 dark:text-slate-300 hover:text-[#1d2327] dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 transition-colors"
               title="Mes siguiente"
             >
               <ChevronRight className="w-4 h-4" />
@@ -256,30 +256,32 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
 
           <button
             onClick={goToToday}
-            className="px-3 py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-all active:scale-95"
+            className="px-3 py-1.5 bg-[#f6f7f7] dark:bg-slate-800 hover:bg-[#f0f0f1] dark:hover:bg-slate-700 text-[#2c3338] dark:text-slate-200 text-xs font-semibold rounded border border-[#8c8f94] dark:border-slate-700 transition-colors"
           >
             Hoy
           </button>
 
           <button
             onClick={() => onOpenNewTurnoWithDateTime(todayStr, '10:00')}
-            className="px-3 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-1.5 shrink-0 active:scale-95"
+            className="px-3 py-1.5 bg-[#2271b1] hover:bg-[#135e96] text-white text-xs font-semibold rounded transition-colors flex items-center gap-1 shrink-0"
           >
-            <Plus className="w-4 h-4" /> Nuevo Turno
+            <Plus className="w-3.5 h-3.5" /> Nuevo Turno
           </button>
         </div>
       </div>
 
       {/* MONTH GRID */}
-      <div className="bg-[#12151c] border border-slate-800 rounded-2xl p-2 sm:p-5 shadow-2xl overflow-x-auto">
+      <div className="bg-white dark:bg-[#161b22] border border-[#c3c4c7] dark:border-slate-800 rounded p-3 sm:p-4 shadow-xs overflow-x-auto transition-colors">
         <div className="min-w-[320px]">
           {/* Days of Week Header */}
           <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center">
             {weekDayNames.map((d, idx) => (
               <div
                 key={d}
-                className={`py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg ${
-                  idx === 0 || idx === 6 ? 'text-indigo-400/80 bg-indigo-950/20' : 'text-slate-400 bg-[#0a0c10]/40'
+                className={`py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded ${
+                  idx === 0 || idx === 6
+                    ? 'text-[#2271b1] dark:text-[#72aee6] bg-[#f0f6fc] dark:bg-[#2271b1]/15'
+                    : 'text-slate-600 dark:text-slate-300 bg-[#f0f0f1] dark:bg-[#0e1117]'
                 }`}
               >
                 {d}
@@ -296,23 +298,23 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
               return (
                 <div
                   key={`${cell.dateStr}-${idx}`}
-                  className={`min-h-[70px] sm:min-h-[130px] p-1 sm:p-2 rounded-xl border flex flex-col justify-between transition-all group relative ${
+                  className={`min-h-[70px] sm:min-h-[120px] p-1 sm:p-1.5 rounded border flex flex-col justify-between transition-colors group relative ${
                     cell.isCurrentMonth
                       ? isToday
-                        ? 'bg-indigo-950/30 border-indigo-500/60 shadow-lg shadow-indigo-500/10'
-                        : 'bg-[#0a0c10]/80 border-slate-800/80 hover:border-slate-700 hover:bg-[#0d1017]'
-                      : 'bg-[#08090d]/40 border-slate-900 text-slate-600 opacity-40'
+                        ? 'bg-[#f0f6fc] dark:bg-[#2271b1]/15 border-[#2271b1] shadow-xs'
+                        : 'bg-white dark:bg-[#161b22] border-[#dcdcde] dark:border-slate-800 hover:border-[#8c8f94] dark:hover:border-slate-700'
+                      : 'bg-[#f6f7f7] dark:bg-[#0e1117]/60 border-[#e0e0e0] dark:border-slate-900 text-[#a7aaad] dark:text-slate-600'
                   }`}
                 >
                 {/* Cell Top Header */}
                 <div className="flex items-center justify-between">
                   <span
-                    className={`font-mono font-bold text-xs px-2 py-0.5 rounded-md ${
+                    className={`font-mono font-bold text-xs px-1.5 py-0.5 rounded ${
                       isToday
-                        ? 'bg-indigo-600 text-white shadow-md'
+                        ? 'bg-[#2271b1] text-white shadow-xs'
                         : cell.isCurrentMonth
-                        ? 'text-slate-300'
-                        : 'text-slate-600'
+                        ? 'text-[#1d2327] dark:text-slate-200'
+                        : 'text-[#a7aaad] dark:text-slate-600'
                     }`}
                   >
                     {cell.dayNum}
@@ -321,7 +323,7 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                   {cell.isCurrentMonth && (
                     <button
                       onClick={() => onOpenNewTurnoWithDateTime(cell.dateStr, '10:00')}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded-md transition-all"
+                      className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-500 dark:text-slate-400 hover:text-[#2271b1] dark:hover:text-[#72aee6] hover:bg-[#f0f0f1] dark:hover:bg-slate-800 rounded transition-colors"
                       title={`Agendar turno para el ${cell.dateStr}`}
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -330,7 +332,7 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                 </div>
 
                 {/* List of Turnos in Cell */}
-                <div className="my-1.5 space-y-1 overflow-y-auto max-h-[90px] no-scrollbar">
+                <div className="my-1 space-y-1 overflow-y-auto max-h-[85px] no-scrollbar">
                   {dayTurnos.map(t => {
                     const st = getStatusBadge(t.estado);
                     const timeStr = new Date(t.fecha_hora).toLocaleTimeString('es-AR', {
@@ -343,22 +345,22 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                       <div
                         key={t.id}
                         onClick={() => setSelectedTurno(t)}
-                        className={`p-1.5 rounded-lg border text-[11px] cursor-pointer transition-all hover:scale-[1.02] shadow-sm flex flex-col gap-0.5 ${st.bg}`}
+                        className={`p-1.5 rounded border text-[11px] cursor-pointer transition-colors shadow-2xs flex flex-col gap-0.5 ${st.bg}`}
                       >
                         <div className="flex items-center justify-between font-bold">
-                          <span className="flex items-center gap-1 truncate text-white">
+                          <span className="flex items-center gap-1 truncate text-[#1d2327] dark:text-slate-100">
                             <span className={`w-1.5 h-1.5 rounded-full ${st.dot} shrink-0`} />
                             {t.mascota?.nombre || 'Perro'}
                           </span>
-                          <span className="font-mono text-[10px] text-slate-300 shrink-0">
+                          <span className="font-mono text-[10px] text-slate-600 dark:text-slate-300 shrink-0">
                             {timeStr}
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between text-[10px] text-slate-300/80">
+                        <div className="flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400">
                           <span className="truncate">{t.servicio?.nombre}</span>
                           {t.mascota?.usa_bozal && (
-                            <span className="text-rose-400 font-bold shrink-0 ml-1">⚠️ Bozal</span>
+                            <span className="text-[#d63638] dark:text-rose-400 font-bold shrink-0 ml-1">⚠️ Bozal</span>
                           )}
                         </div>
                       </div>
@@ -370,7 +372,7 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                 {dayTurnos.length === 0 && cell.isCurrentMonth && (
                   <button
                     onClick={() => onOpenNewTurnoWithDateTime(cell.dateStr, '10:00')}
-                    className="w-full text-[10px] text-slate-600 hover:text-indigo-400 py-1 rounded border border-dashed border-slate-800/60 hover:border-indigo-500/40 text-center transition-all opacity-0 group-hover:opacity-100"
+                    className="w-full text-[10px] text-slate-400 hover:text-[#2271b1] py-0.5 rounded border border-dashed border-[#c3c4c7] hover:border-[#2271b1] text-center transition-colors opacity-0 group-hover:opacity-100"
                   >
                     + Agendar
                   </button>
@@ -384,45 +386,45 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
 
       {/* TURNO DETAILS / MODAL FROM CALENDAR */}
       {selectedTurno && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0a0c10]/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-[#12151c] border border-slate-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden my-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1d2327]/60 dark:bg-black/70 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white dark:bg-[#161b22] border border-[#c3c4c7] dark:border-slate-800 rounded w-full max-w-md shadow-lg overflow-hidden my-8 transition-colors">
             {/* Header */}
-            <div className="p-5 border-b border-slate-800 bg-[#0a0c10]/80 flex items-center justify-between">
+            <div className="p-4 border-b border-[#c3c4c7] dark:border-slate-800 bg-[#f0f0f1] dark:bg-[#0e1117] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <img
                   src={selectedTurno.mascota?.foto_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=300'}
                   alt={selectedTurno.mascota?.nombre}
-                  className="w-12 h-12 rounded-xl object-cover border border-slate-700 shadow-md"
+                  className="w-11 h-11 rounded object-cover border border-[#c3c4c7] dark:border-slate-700"
                 />
                 <div>
-                  <h3 className="font-bold text-white text-base flex items-center gap-2">
+                  <h3 className="font-bold text-[#1d2327] dark:text-white text-sm flex items-center gap-2">
                     {selectedTurno.mascota?.nombre}
                     {selectedTurno.mascota?.usa_bozal && (
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#fcf0f1] dark:bg-rose-950/40 text-[#d63638] dark:text-rose-400 border border-[#d63638]/30 dark:border-rose-900/40 font-bold">
                         ⚠️ USA BOZAL
                       </span>
                     )}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Raza: {selectedTurno.mascota?.raza} • Dueño: {selectedTurno.cliente?.nombre}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedTurno(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="p-1 rounded text-slate-500 dark:text-slate-400 hover:text-[#1d2327] dark:hover:text-white hover:bg-[#e0e0e0] dark:hover:bg-slate-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Content Body */}
-            <div className="p-5 space-y-4">
+            <div className="p-4 space-y-3">
               {/* Date & Time */}
-              <div className="p-3 bg-[#0a0c10] border border-slate-800 rounded-xl flex items-center justify-between">
+              <div className="p-2.5 bg-[#f6f7f7] dark:bg-[#0e1117] border border-[#c3c4c7] dark:border-slate-800 rounded flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4 text-indigo-400" />
-                  <span className="text-xs font-semibold text-white font-mono">
+                  <CalendarIcon className="w-4 h-4 text-[#2271b1] dark:text-[#72aee6]" />
+                  <span className="text-xs font-semibold text-[#1d2327] dark:text-slate-200 font-mono">
                     {new Date(selectedTurno.fecha_hora).toLocaleDateString('es-AR', {
                       weekday: 'long',
                       day: 'numeric',
@@ -431,7 +433,7 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                     })}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 font-mono text-xs font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                <div className="flex items-center gap-1 font-mono text-xs font-bold text-[#2271b1] dark:text-[#72aee6] bg-[#f0f6fc] dark:bg-[#2271b1]/20 px-2 py-0.5 rounded border border-[#2271b1]/30">
                   <Clock className="w-3.5 h-3.5" />
                   {new Date(selectedTurno.fecha_hora).toLocaleTimeString('es-AR', {
                     hour: '2-digit',
@@ -442,16 +444,16 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
               </div>
 
               {/* Service & Price */}
-              <div className="p-3 bg-[#0a0c10] border border-slate-800 rounded-xl space-y-2">
+              <div className="p-2.5 bg-[#f6f7f7] dark:bg-[#0e1117] border border-[#c3c4c7] dark:border-slate-800 rounded space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <Scissors className="w-3.5 h-3.5 text-indigo-400" /> Servicio:
+                  <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                    <Scissors className="w-3.5 h-3.5 text-[#2271b1] dark:text-[#72aee6]" /> Servicio:
                   </span>
-                  <span className="font-bold text-white">{selectedTurno.servicio?.nombre}</span>
+                  <span className="font-bold text-[#1d2327] dark:text-white">{selectedTurno.servicio?.nombre}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Precio Cobrado:</span>
-                  <span className="font-mono font-bold text-emerald-400 text-sm">
+                  <span className="text-slate-600 dark:text-slate-400">Precio Cobrado:</span>
+                  <span className="font-mono font-bold text-[#00a32a] dark:text-emerald-400 text-sm">
                     {perfilPeluqueria?.moneda || '$'} {selectedTurno.precio_cobrado?.toLocaleString('es-AR')}
                   </span>
                 </div>
@@ -459,50 +461,50 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
 
               {/* Clinical & Behavior badges */}
               <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <div className="p-2.5 bg-[#0a0c10] border border-slate-800 rounded-xl space-y-1">
-                  <span className="text-slate-400 font-medium flex items-center gap-1 text-[10px]">
-                    <Syringe className="w-3 h-3 text-emerald-400" /> ÚLTIMA VACUNACIÓN
+                <div className="p-2 bg-[#f6f7f7] dark:bg-[#0e1117] border border-[#c3c4c7] dark:border-slate-800 rounded space-y-0.5">
+                  <span className="text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1 text-[10px]">
+                    <Syringe className="w-3 h-3 text-[#00a32a] dark:text-emerald-400" /> ÚLTIMA VACUNACIÓN
                   </span>
-                  <p className="font-mono text-slate-200 font-semibold">
+                  <p className="font-mono text-[#1d2327] dark:text-slate-200 font-bold">
                     {selectedTurno.mascota?.fecha_ultima_vacunacion
                       ? new Date(selectedTurno.mascota.fecha_ultima_vacunacion + 'T00:00:00').toLocaleDateString('es-AR')
                       : 'S/D'}
                   </p>
                 </div>
 
-                <div className="p-2.5 bg-[#0a0c10] border border-slate-800 rounded-xl space-y-1">
-                  <span className="text-slate-400 font-medium flex items-center gap-1 text-[10px]">
-                    <Car className="w-3 h-3 text-cyan-400" /> LLEGADA
+                <div className="p-2 bg-[#f6f7f7] dark:bg-[#0e1117] border border-[#c3c4c7] dark:border-slate-800 rounded space-y-0.5">
+                  <span className="text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1 text-[10px]">
+                    <Car className="w-3 h-3 text-[#2271b1] dark:text-[#72aee6]" /> LLEGADA
                   </span>
-                  <p className="text-slate-200 font-semibold">
+                  <p className="text-[#1d2327] dark:text-slate-200 font-bold">
                     {selectedTurno.mascota?.transporte_llegada || 'Caminando'}
                   </p>
                 </div>
               </div>
 
               {/* Observations / Notes */}
-              <div className="p-3 bg-[#0a0c10] border border-slate-800 rounded-xl space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                  <FileText className="w-3 h-3 text-indigo-400" /> Observaciones del Turno
+              <div className="p-2.5 bg-[#f6f7f7] dark:bg-[#0e1117] border border-[#c3c4c7] dark:border-slate-800 rounded space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <FileText className="w-3 h-3 text-[#2271b1] dark:text-[#72aee6]" /> Observaciones del Turno
                 </span>
-                <p className="text-xs text-slate-200">
+                <p className="text-xs text-[#2c3338] dark:text-slate-300">
                   {selectedTurno.notas || 'Sin observaciones registradas para este turno.'}
                 </p>
               </div>
 
               {/* Change Status Buttons */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Cambiar Estado del Turno:</label>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[#2c3338] dark:text-slate-300">Cambiar Estado del Turno:</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={async () => {
                       await onUpdateEstado(selectedTurno.id, 'en_proceso');
                       setSelectedTurno(prev => prev ? { ...prev, estado: 'en_proceso' } : null);
                     }}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition-all ${
+                    className={`py-1.5 px-2.5 rounded text-xs font-semibold border flex items-center justify-center gap-1 transition-colors ${
                       selectedTurno.estado === 'en_proceso'
-                        ? 'bg-blue-600 text-white border-blue-500'
-                        : 'bg-[#0a0c10] text-slate-300 border-slate-800 hover:border-slate-700'
+                        ? 'bg-[#2271b1] text-white border-[#2271b1]'
+                        : 'bg-[#f6f7f7] dark:bg-slate-800 text-[#2c3338] dark:text-slate-200 border border-[#8c8f94] dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700'
                     }`}
                   >
                     ✂️ En Baño/Corte
@@ -513,21 +515,21 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                       await onUpdateEstado(selectedTurno.id, 'completado');
                       setSelectedTurno(prev => prev ? { ...prev, estado: 'completado' } : null);
                     }}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition-all ${
+                    className={`py-1.5 px-2.5 rounded text-xs font-semibold border flex items-center justify-center gap-1 transition-colors ${
                       selectedTurno.estado === 'completado'
-                        ? 'bg-emerald-600 text-white border-emerald-500'
-                        : 'bg-[#0a0c10] text-slate-300 border-slate-800 hover:border-slate-700'
+                        ? 'bg-[#00a32a] text-white border-[#00a32a]'
+                        : 'bg-[#f6f7f7] dark:bg-slate-800 text-[#2c3338] dark:text-slate-200 border border-[#8c8f94] dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700'
                     }`}
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Completado
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#00a32a] dark:text-emerald-400" /> Completado
                   </button>
                 </div>
               </div>
 
               {/* Export to Google Calendar / ICS Sync Buttons */}
-              <div className="pt-2 border-t border-slate-800 space-y-2">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Sincronización con Calendario Externo
+              <div className="pt-2 border-t border-[#c3c4c7] dark:border-slate-800 space-y-1.5">
+                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  Sincronización con Calendario
                 </span>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -535,22 +537,22 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                     href={getGoogleCalendarUrl(selectedTurno)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
+                    className="p-1.5 bg-[#f6f7f7] dark:bg-slate-800 hover:bg-[#f0f0f1] dark:hover:bg-slate-700 text-[#2c3338] dark:text-slate-200 text-xs font-medium rounded border border-[#8c8f94] dark:border-slate-700 flex items-center justify-center gap-1 transition-colors"
                   >
-                    <ExternalLink className="w-3.5 h-3.5 text-indigo-400" /> Google Calendar
+                    <ExternalLink className="w-3.5 h-3.5 text-[#2271b1] dark:text-[#72aee6]" /> Google Calendar
                   </a>
 
                   <button
                     onClick={() => downloadIcsFile(selectedTurno)}
-                    className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
+                    className="p-1.5 bg-[#f6f7f7] dark:bg-slate-800 hover:bg-[#f0f0f1] dark:hover:bg-slate-700 text-[#2c3338] dark:text-slate-200 text-xs font-medium rounded border border-[#8c8f94] dark:border-slate-700 flex items-center justify-center gap-1 transition-colors"
                   >
-                    <Download className="w-3.5 h-3.5 text-emerald-400" /> Descargar .ics
+                    <Download className="w-3.5 h-3.5 text-[#00a32a] dark:text-emerald-400" /> Descargar .ics
                   </button>
                 </div>
               </div>
 
               {/* WhatsApp & Delete Actions */}
-              <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
+              <div className="pt-2 border-t border-[#c3c4c7] dark:border-slate-800 flex items-center justify-between gap-2">
                 <button
                   onClick={() => {
                     if (confirm(`¿Eliminar turno de ${selectedTurno.mascota?.nombre}?`)) {
@@ -558,9 +560,9 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                       setSelectedTurno(null);
                     }
                   }}
-                  className="px-3 py-2 text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
+                  className="px-2.5 py-1.5 text-[#d63638] dark:text-rose-400 hover:bg-[#fcf0f1] dark:hover:bg-rose-950/40 rounded text-xs font-semibold transition-colors flex items-center gap-1"
                 >
-                  <Trash2 className="w-4 h-4" /> Eliminar
+                  <Trash2 className="w-3.5 h-3.5" /> Eliminar
                 </button>
 
                 {selectedTurno.cliente?.telefono && (
@@ -570,9 +572,9 @@ export const AlmanaqueCalendar: React.FC<AlmanaqueCalendarProps> = ({
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-lg shadow-md transition-all flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-[#25d366] hover:bg-[#128c7e] text-white font-semibold text-xs rounded shadow-xs transition-colors flex items-center gap-1"
                   >
-                    <MessageCircle className="w-4 h-4" /> Recordatorio WhatsApp
+                    <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                   </a>
                 )}
               </div>

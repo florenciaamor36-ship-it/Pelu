@@ -1,24 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Dog,
   Calendar,
-  Users,
-  Briefcase,
   Clock,
   Database,
   Plus,
   Package,
   TrendingUp,
-  CheckCircle2,
-  AlertCircle,
   Scissors,
   User as UserIcon,
   LogOut,
-  ShieldCheck,
   Store,
   Info,
+  Menu,
+  X,
+  LayoutDashboard,
+  ExternalLink,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { SupabaseConfig, PerfilPeluqueria } from '../types';
+import { useTheme } from '../context/ThemeContext';
 
 export type TabType = 'turnos' | 'mascotas' | 'inventario' | 'finanzas' | 'servicios' | 'disponibilidad' | 'mi_peluqueria' | 'supabase' | 'sobre_nosotros';
 
@@ -47,53 +50,125 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuthModal,
   onLogout,
 }) => {
+  const { theme, toggleTheme } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nombreSalon = perfilPeluqueria?.nombre_peluqueria || 'CaninGroom Pro';
-  const sloganSalon = perfilPeluqueria?.slogan || 'Peluquería Canina';
   const logoUrl = perfilPeluqueria?.logo_url;
 
+  const handleSelectTab = (tab: TabType) => {
+    setActiveTab(tab);
+    setIsMenuOpen(false);
+  };
+
+  const navItems = [
+    { id: 'turnos' as TabType, label: 'Agenda & Turnos', icon: Calendar, count: turnosPendientesCount, countColor: 'bg-[#d63638] text-white' },
+    { id: 'mascotas' as TabType, label: 'Mascotas & Clientes', icon: Dog },
+    { id: 'inventario' as TabType, label: 'Stock de Productos', icon: Package, count: stockAlertsCount, countColor: 'bg-[#d63638] text-white' },
+    { id: 'finanzas' as TabType, label: 'Finanzas & Caja', icon: TrendingUp },
+    { id: 'servicios' as TabType, label: 'Servicios & Tarifas', icon: Scissors },
+    { id: 'disponibilidad' as TabType, label: 'Horarios de Atención', icon: Clock },
+    { id: 'mi_peluqueria' as TabType, label: 'Perfil del Salón', icon: Store },
+    { id: 'supabase' as TabType, label: 'Estado Nube DB', icon: Database },
+    { id: 'sobre_nosotros' as TabType, label: 'Acerca de', icon: Info },
+  ];
+
   return (
-    <header className="border-b border-slate-800 bg-[#0a0c10]/95 backdrop-blur-md sticky top-0 z-30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top bar */}
-        <div className="flex items-center justify-between py-3 sm:py-4 gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center shadow-lg shadow-indigo-500/25 overflow-hidden shrink-0 border border-indigo-500/30">
-              {logoUrl ? (
-                <img src={logoUrl} alt={nombreSalon} className="w-full h-full object-cover" />
-              ) : (
-                <Dog className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              )}
-            </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                <span>{nombreSalon}</span>
-                <span className="hidden sm:flex text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-medium items-center gap-1">
-                  <Scissors className="w-3 h-3 text-indigo-400" /> Estética Canina
-                </span>
-              </h1>
-              <p className="text-[11px] sm:text-xs text-slate-400 truncate max-w-[200px] sm:max-w-md">
-                {sloganSalon}
-              </p>
+    <>
+      {/* Admin Top Bar */}
+      <header className="bg-[#1d2327] text-[#f0f0f1] sticky top-0 z-40 h-11 flex items-center px-3 sm:px-4 border-b border-[#2c3338] shadow-xs select-none">
+        <div className="w-full flex items-center justify-between gap-3">
+          {/* Left: Hamburger Toggle + Logo + Site Title */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* Hamburger button for sidebar menu */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-1 rounded hover:bg-[#2c3338] text-slate-300 hover:text-white transition-colors flex items-center gap-1.5"
+              title="Menú de Navegación"
+              aria-label="Abrir Menú"
+            >
+              <Menu className="w-5 h-5" />
+              <span className="text-xs font-semibold text-slate-200 hidden sm:inline">Menú</span>
+            </button>
+
+            {/* Site Title with logo icon */}
+            <div
+              onClick={() => handleSelectTab('turnos')}
+              className="flex items-center gap-2 cursor-pointer hover:text-[#72aee6] transition-colors"
+            >
+              <div className="w-6 h-6 rounded bg-[#2271b1] text-white font-bold flex items-center justify-center text-xs overflow-hidden shrink-0 border border-[#2271b1]">
+                {logoUrl ? (
+                  <img src={logoUrl} alt={nombreSalon} className="w-full h-full object-cover" />
+                ) : (
+                  <Dog className="w-3.5 h-3.5 text-white" />
+                )}
+              </div>
+              <span className="font-semibold text-xs sm:text-sm tracking-tight text-white truncate max-w-[150px] sm:max-w-xs">
+                {nombreSalon}
+              </span>
+              <span className="text-[11px] text-[#a7aaad] hidden md:inline-block">
+                | Panel de Gestión
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* User Auth Button / Badge */}
+          {/* Right: Quick Actions */}
+          <div className="flex items-center space-x-2 shrink-0">
+            {/* Theme Mode Selector Button */}
+            <button
+              onClick={toggleTheme}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold select-none transition-all border cursor-pointer ${
+                theme === 'dark'
+                  ? 'bg-[#2c3338] hover:bg-[#3c434a] text-indigo-300 border-indigo-500/40 shadow-xs'
+                  : 'bg-[#2c3338] hover:bg-[#3c434a] text-amber-300 border-[#3c434a] shadow-xs'
+              }`}
+              title={theme === 'dark' ? 'Cambiar a Modo Claro (Sol)' : 'Cambiar a Modo Oscuro (Luna)'}
+              aria-label="Cambiar Tema de Color"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className="hidden sm:inline text-indigo-200">Modo Oscuro</span>
+                </>
+              ) : (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-300" />
+                  <span className="hidden sm:inline text-slate-200">Modo Claro</span>
+                </>
+              )}
+            </button>
+
+            {/* + Añadir Turno Button */}
+            <button
+              onClick={onOpenNewTurnoModal}
+              className="flex items-center gap-1 px-2.5 py-1 bg-[#2271b1] hover:bg-[#135e96] text-white text-xs font-semibold rounded transition-colors shadow-xs"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">+ Añadir Turno</span>
+            </button>
+
+            {/* Cloud Sync Badge */}
+            <button
+              onClick={() => handleSelectTab('supabase')}
+              className="hidden sm:flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded bg-[#2c3338] text-emerald-400 border border-[#3c434a] hover:bg-[#3c434a] transition-colors font-mono"
+              title="Estado de la Nube"
+            >
+              <Database className="w-3 h-3 text-emerald-400" />
+              <span>Nube OK</span>
+            </button>
+
+            {/* Admin User Profile */}
             {currentUserEmail ? (
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1 sm:p-1.5 rounded-xl">
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 flex items-center justify-center font-bold text-xs">
+              <div className="flex items-center gap-2 pl-2 border-l border-[#2c3338]">
+                <div className="w-6 h-6 rounded bg-[#2271b1] text-white text-[11px] font-bold flex items-center justify-center">
                   {currentUserEmail.charAt(0).toUpperCase()}
                 </div>
-                <div className="hidden lg:block text-left pr-1">
-                  <p className="text-[11px] font-semibold text-white leading-none truncate max-w-[120px]">
-                    {currentUserEmail.split('@')[0]}
-                  </p>
-                  <span className="text-[9px] text-emerald-400 font-mono">Sesión Nube OK</span>
-                </div>
+                <span className="text-xs text-slate-300 hidden lg:inline max-w-[120px] truncate">
+                  Hola, {currentUserEmail.split('@')[0]}
+                </span>
                 <button
                   onClick={onLogout}
                   title="Cerrar Sesión"
-                  className="p-1 sm:p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors"
+                  className="p-1 text-slate-400 hover:text-rose-400 transition-colors"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
@@ -101,160 +176,112 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={onOpenAuthModal}
-                className="flex items-center gap-1.5 text-xs px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/30 transition-all font-semibold"
+                className="flex items-center gap-1 text-xs text-slate-300 hover:text-white px-2 py-1 rounded hover:bg-[#2c3338] transition-colors"
               >
-                <UserIcon className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Ingresar</span>
+                <UserIcon className="w-3.5 h-3.5" />
+                <span>Acceder</span>
               </button>
             )}
-
-            {/* Cloud status badge */}
-            <button
-              onClick={() => setActiveTab('supabase')}
-              className="flex items-center gap-1.5 sm:gap-2 text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all bg-emerald-950/30 border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/40"
-              title="Ver estado de base de datos en nube"
-            >
-              <Database className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline font-mono">
-                Sincronización Nube OK
-              </span>
-              <span className="sm:hidden font-mono text-[10px]">
-                Nube OK
-              </span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            </button>
-
-            {/* Quick action button (Desktop only) */}
-            <button
-              onClick={onOpenNewTurnoModal}
-              className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all"
-            >
-              <Plus className="w-4 h-4" /> Agendar Turno
-            </button>
           </div>
         </div>
+      </header>
 
-      {/* Navigation Tabs (Desktop & Tablet) */}
-        <nav className="hidden md:flex items-center space-x-1 sm:space-x-2 border-t border-slate-800/80 pt-2 pb-2 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setActiveTab('turnos')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all relative whitespace-nowrap ${
-              activeTab === 'turnos'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Turnos & Calendario</span>
-            {turnosPendientesCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.2 bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold text-[10px] rounded-full">
-                {turnosPendientesCount}
-              </span>
-            )}
-          </button>
+      {/* Mobile / Overlay Drawer */}
+      {isMenuOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex animate-in fade-in duration-150">
+          <div
+            className="absolute inset-0"
+            onClick={() => setIsMenuOpen(false)}
+          />
+          <div className="relative z-10 w-72 bg-[#1d2327] text-[#f0f0f1] h-full flex flex-col justify-between border-r border-[#2c3338] shadow-2xl overflow-y-auto">
+            <div>
+              {/* Drawer Header */}
+              <div className="p-3.5 bg-[#101517] border-b border-[#2c3338] flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <LayoutDashboard className="w-4 h-4 text-[#2271b1]" />
+                  <span className="font-bold text-xs text-white uppercase tracking-wider">Menú Principal</span>
+                </div>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-1 text-slate-400 hover:text-white rounded hover:bg-[#2c3338]"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-          <button
-            onClick={() => setActiveTab('mascotas')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-              activeTab === 'mascotas'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <Dog className="w-4 h-4" />
-            <span>Mascotas & Clientes</span>
-          </button>
+              {/* Navigation Menu Links */}
+              <nav className="py-2">
+                <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                  Panel Principal
+                </div>
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelectTab(item.id)}
+                      className={`w-full px-4 py-2.5 text-xs font-medium flex items-center justify-between transition-colors border-l-4 ${
+                        isActive
+                          ? 'bg-[#2271b1] text-white border-white'
+                          : 'text-[#f0f0f1] border-transparent hover:bg-[#2c3338] hover:text-[#72aee6]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.count ? (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${item.countColor || 'bg-slate-700 text-white'}`}>
+                          {item.count}
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
 
-          <button
-            onClick={() => setActiveTab('inventario')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-              activeTab === 'inventario'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <Package className="w-4 h-4" />
-            <span>Productos & Stock</span>
-            {stockAlertsCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.2 bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold text-[10px] rounded-full">
-                {stockAlertsCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('finanzas')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-              activeTab === 'finanzas'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            <span>Finanzas & Gastos</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('servicios')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-              activeTab === 'servicios'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <Briefcase className="w-4 h-4" />
-            <span>Servicios</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('disponibilidad')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-              activeTab === 'disponibilidad'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            <span>Horarios</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('mi_peluqueria')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-              activeTab === 'mi_peluqueria'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <Store className="w-4 h-4" />
-            <span>Mi Peluquería</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('supabase')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-              activeTab === 'supabase'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <Database className="w-4 h-4" />
-            <span>Nube & Respaldos</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('sobre_nosotros')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-              activeTab === 'sobre_nosotros'
-                ? 'bg-slate-800/80 text-indigo-400 border border-indigo-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
-            }`}
-          >
-            <Info className="w-4 h-4" />
-            <span>Sobre Nosotros</span>
-          </button>
-        </nav>
-      </div>
-    </header>
+            {/* Sidebar Footer info */}
+            <div className="p-4 bg-[#101517] border-t border-[#2c3338] text-xs text-slate-400 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-slate-300 text-xs">{nombreSalon}</p>
+                  <p className="text-[10px] text-slate-500">CaninGroom Pro v2.5</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="p-2 rounded bg-[#2c3338] hover:bg-[#3c434a] text-slate-200 text-xs flex items-center gap-1.5 border border-[#3c434a]"
+                  title="Cambiar Tema"
+                >
+                  {theme === 'dark' ? (
+                    <>
+                      <Moon className="w-4 h-4 text-indigo-400" />
+                      <span className="text-indigo-200">Oscuro</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sun className="w-4 h-4 text-amber-300" />
+                      <span className="text-amber-200">Claro</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  onOpenNewTurnoModal();
+                }}
+                className="w-full py-2 bg-[#2271b1] hover:bg-[#135e96] text-white text-xs font-semibold rounded text-center transition-colors shadow-xs"
+              >
+                + Crear Nuevo Turno
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 };

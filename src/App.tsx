@@ -1,4 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Calendar,
+  Dog,
+  Package,
+  TrendingUp,
+  Scissors,
+  Clock,
+  Store,
+  Database,
+  Info,
+} from 'lucide-react';
 import { Header, TabType } from './components/Header';
 import { TurnosManager } from './components/TurnosManager';
 import { MascotasManager } from './components/MascotasManager';
@@ -257,22 +268,43 @@ export default function App() {
   const turnosPendientesCount = turnos.filter(t => t.estado === 'pendiente').length;
   const stockAlertsCount = productos.filter(p => p.stock_actual <= p.stock_minimo).length;
 
+  const handleGuestLogin = () => {
+    const guestUser = {
+      uid: 'guest-demo-user',
+      email: 'demo@caningroom.com',
+    } as User;
+    setCurrentUser(guestUser);
+    loadData();
+  };
+
   if (!authChecked) {
     return (
-      <div className="min-h-screen bg-[#07090d] flex flex-col items-center justify-center space-y-4">
-        <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-        <p className="text-xs text-slate-400 font-mono">Iniciando sistema de autenticación CaninGroom Pro...</p>
+      <div className="min-h-screen bg-[#f0f0f1] dark:bg-[#0e1117] text-[#1d2327] dark:text-slate-100 flex flex-col items-center justify-center space-y-4">
+        <div className="w-10 h-10 border-4 border-[#2271b1]/20 border-t-[#2271b1] rounded-full animate-spin" />
+        <p className="text-xs text-slate-600 dark:text-slate-400 font-mono">Iniciando sistema de autenticación CaninGroom Pro...</p>
       </div>
     );
   }
 
   if (!currentUser) {
-    return <LoginScreen onSuccess={loadData} />;
+    return <LoginScreen onSuccess={loadData} onGuestLogin={handleGuestLogin} />;
   }
 
+  const navItems = [
+    { id: 'turnos' as TabType, label: 'Agenda & Turnos', icon: Calendar, count: turnosPendientesCount },
+    { id: 'mascotas' as TabType, label: 'Mascotas & Clientes', icon: Dog },
+    { id: 'inventario' as TabType, label: 'Stock de Productos', icon: Package, count: stockAlertsCount },
+    { id: 'finanzas' as TabType, label: 'Finanzas & Caja', icon: TrendingUp },
+    { id: 'servicios' as TabType, label: 'Servicios & Precios', icon: Scissors },
+    { id: 'disponibilidad' as TabType, label: 'Horarios de Atención', icon: Clock },
+    { id: 'mi_peluqueria' as TabType, label: 'Perfil del Salón', icon: Store },
+    { id: 'supabase' as TabType, label: 'Estado Nube DB', icon: Database },
+    { id: 'sobre_nosotros' as TabType, label: 'Acerca de', icon: Info },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0a0c10] text-slate-100 font-sans antialiased flex flex-col selection:bg-indigo-500 selection:text-white">
-      {/* Navbar Header */}
+    <div className="min-h-screen bg-[#f0f0f1] dark:bg-[#0e1117] text-[#1d2327] dark:text-slate-100 font-sans antialiased flex flex-col selection:bg-[#2271b1] selection:text-white transition-colors duration-150">
+      {/* Admin Top Bar */}
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -289,99 +321,136 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-24 md:py-8">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 space-y-4">
-            <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-            <p className="text-xs text-slate-400 font-mono">Cargando sistema de gestión CaninGroom...</p>
-          </div>
-        ) : (
-          <>
-            {activeTab === 'turnos' && (
-              <TurnosManager
-                turnos={turnos}
-                mascotas={mascotas}
-                servicios={servicios}
-                perfilPeluqueria={perfilPeluqueria}
-                onUpdateEstado={handleUpdateTurnoEstado}
-                onDeleteTurno={handleDeleteTurno}
-                onOpenNewTurnoModal={() => {
-                  setPreSelectedMascotaId(undefined);
-                  setPreSelectedDate(undefined);
-                  setPreSelectedTime(undefined);
-                  setIsNewTurnoModalOpen(true);
-                }}
-                onOpenNewTurnoWithDateTime={handleOpenTurnoWithDateTime}
-                onRefresh={loadData}
-              />
-            )}
+      {/* Main Container: Left Sidebar + Main Body */}
+      <div className="flex-1 flex w-full">
+        {/* Desktop Persistent Admin Sidebar */}
+        <aside className="hidden md:block w-52 bg-[#1d2327] dark:bg-[#161b22] text-[#f0f0f1] shrink-0 border-r border-[#2c3338] dark:border-slate-800 select-none py-2 transition-colors">
+          <nav className="space-y-0.5 sticky top-12">
+            <div className="px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider text-slate-400">
+              Escritorio
+            </div>
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full px-3.5 py-2 text-xs font-medium flex items-center justify-between transition-colors border-l-4 ${
+                    isActive
+                      ? 'bg-[#2271b1] text-white border-white'
+                      : 'text-[#f0f0f1] border-transparent hover:bg-[#2c3338] hover:text-[#72aee6]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 truncate">
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <span className="truncate">{item.label}</span>
+                  </div>
+                  {item.count ? (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded font-bold bg-[#d63638] text-white shrink-0 ml-1">
+                      {item.count}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
 
-            {activeTab === 'mascotas' && (
-              <MascotasManager
-                mascotas={mascotas}
-                clientes={clientes}
-                onSaveMascota={handleSaveMascota}
-                onSaveCliente={handleSaveCliente}
-                onDeleteMascota={handleDeleteMascota}
-                onOpenNewTurnoForMascota={handleOpenTurnoModalForMascota}
-              />
-            )}
+        {/* Main Content Area */}
+        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 space-y-3">
+              <div className="w-8 h-8 border-3 border-[#2271b1]/30 border-t-[#2271b1] rounded-full animate-spin" />
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-mono">Cargando panel de administración...</p>
+            </div>
+          ) : (
+            <div className="max-w-6xl mx-auto space-y-6">
+              {activeTab === 'turnos' && (
+                <TurnosManager
+                  turnos={turnos}
+                  mascotas={mascotas}
+                  servicios={servicios}
+                  perfilPeluqueria={perfilPeluqueria}
+                  onUpdateEstado={handleUpdateTurnoEstado}
+                  onDeleteTurno={handleDeleteTurno}
+                  onOpenNewTurnoModal={() => {
+                    setPreSelectedMascotaId(undefined);
+                    setPreSelectedDate(undefined);
+                    setPreSelectedTime(undefined);
+                    setIsNewTurnoModalOpen(true);
+                  }}
+                  onOpenNewTurnoWithDateTime={handleOpenTurnoWithDateTime}
+                  onRefresh={loadData}
+                />
+              )}
 
-            {activeTab === 'inventario' && (
-              <InventarioManager
-                productos={productos}
-                onSaveProducto={handleSaveProducto}
-                onDeleteProducto={handleDeleteProducto}
-              />
-            )}
+              {activeTab === 'mascotas' && (
+                <MascotasManager
+                  mascotas={mascotas}
+                  clientes={clientes}
+                  onSaveMascota={handleSaveMascota}
+                  onSaveCliente={handleSaveCliente}
+                  onDeleteMascota={handleDeleteMascota}
+                  onOpenNewTurnoForMascota={handleOpenTurnoModalForMascota}
+                />
+              )}
 
-            {activeTab === 'finanzas' && (
-              <FinanzasManager
-                gastos={gastos}
-                turnos={turnos}
-                moneda={perfilPeluqueria?.moneda}
-                onSaveGasto={handleSaveGasto}
-                onDeleteGasto={handleDeleteGasto}
-              />
-            )}
+              {activeTab === 'inventario' && (
+                <InventarioManager
+                  productos={productos}
+                  onSaveProducto={handleSaveProducto}
+                  onDeleteProducto={handleDeleteProducto}
+                />
+              )}
 
-            {activeTab === 'servicios' && (
-              <ServiciosManager
-                servicios={servicios}
-                onSaveServicio={handleSaveServicio}
-                onDeleteServicio={handleDeleteServicio}
-              />
-            )}
+              {activeTab === 'finanzas' && (
+                <FinanzasManager
+                  gastos={gastos}
+                  turnos={turnos}
+                  moneda={perfilPeluqueria?.moneda}
+                  onSaveGasto={handleSaveGasto}
+                  onDeleteGasto={handleDeleteGasto}
+                />
+              )}
 
-            {activeTab === 'disponibilidad' && (
-              <DisponibilidadManager
-                horarios={horarios}
-                turnos={turnos}
-                onSaveHorarios={handleSaveHorarios}
-              />
-            )}
+              {activeTab === 'servicios' && (
+                <ServiciosManager
+                  servicios={servicios}
+                  onSaveServicio={handleSaveServicio}
+                  onDeleteServicio={handleDeleteServicio}
+                />
+              )}
 
-            {activeTab === 'mi_peluqueria' && (
-              <MiPeluqueriaManager
-                perfil={perfilPeluqueria}
-                onSavePerfil={handleSavePerfil}
-              />
-            )}
+              {activeTab === 'disponibilidad' && (
+                <DisponibilidadManager
+                  horarios={horarios}
+                  turnos={turnos}
+                  onSaveHorarios={handleSaveHorarios}
+                />
+              )}
 
-            {activeTab === 'supabase' && (
-              <SupabaseGuideModal
-                config={supabaseConfig}
-                onConfigChange={loadData}
-              />
-            )}
+              {activeTab === 'mi_peluqueria' && (
+                <MiPeluqueriaManager
+                  perfil={perfilPeluqueria}
+                  onSavePerfil={handleSavePerfil}
+                />
+              )}
 
-            {activeTab === 'sobre_nosotros' && (
-              <SobreNosotrosManager />
-            )}
-          </>
-        )}
-      </main>
+              {activeTab === 'supabase' && (
+                <SupabaseGuideModal
+                  config={supabaseConfig}
+                  onConfigChange={loadData}
+                />
+              )}
+
+              {activeTab === 'sobre_nosotros' && (
+                <SobreNosotrosManager />
+              )}
+            </div>
+          )}
+        </main>
+      </div>
 
       {/* New Turno Modal */}
       <NewTurnoModal
@@ -403,17 +472,15 @@ export default function App() {
       />
 
       {/* Footer */}
-      <Footer onOpenSobreNosotros={() => setActiveTab('sobre_nosotros')} />
-
-      {/* Mobile Native Fixed Bottom Navigation */}
-      <MobileBottomNav
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenNewTurnoModal={() => {
-          setPreSelectedMascotaId(undefined);
-          setIsNewTurnoModalOpen(true);
-        }}
-      />
+      <footer className="bg-white dark:bg-[#161b22] border-t border-[#c3c4c7] dark:border-slate-800 py-3 px-4 text-xs text-slate-500 dark:text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2 mt-auto transition-colors">
+        <p className="flex items-center gap-1">
+          <span>Gracias por utilizar </span>
+          <strong className="text-[#2271b1] dark:text-[#72aee6]">CaninGroom Pro</strong>
+        </p>
+        <p className="text-[11px] text-slate-400 dark:text-slate-500">
+          Versión 2.5.0 | Servidor Nube OK
+        </p>
+      </footer>
     </div>
   );
 }

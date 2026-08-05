@@ -37,20 +37,20 @@ export class ErrorBoundary extends Component<Props, State> {
       const isDomainError = errorMsg.includes('unauthorized-domain') || errorMsg.includes('auth/unauthorized-domain');
 
       return (
-        <div className="min-h-screen bg-[#07090d] text-slate-100 flex flex-col items-center justify-center p-6 selection:bg-rose-500 selection:text-white">
-          <div className="max-w-md w-full bg-[#11141c] border border-rose-500/30 rounded-2xl p-6 shadow-2xl space-y-6 text-center">
-            <div className="w-14 h-14 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-rose-500/10">
+        <div className="min-h-screen bg-[#f6f7f7] dark:bg-[#0e1117] text-[#1d2327] dark:text-slate-100 flex flex-col items-center justify-center p-6 transition-colors">
+          <div className="max-w-md w-full bg-white dark:bg-[#161b22] border border-[#c3c4c7] dark:border-slate-800 rounded-xl p-6 shadow-xl space-y-6 text-center">
+            <div className="w-14 h-14 bg-[#fcf0f1] dark:bg-rose-950/40 border border-[#d63638]/30 text-[#d63638] dark:text-rose-400 rounded-xl flex items-center justify-center mx-auto shadow-xs">
               <AlertTriangle className="w-8 h-8" />
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-lg font-bold text-white">Atención: Error al cargar el sistema</h2>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h2 className="text-lg font-bold text-[#1d2327] dark:text-white">Atención: Error al cargar el sistema</h2>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Se ha producido un detalle al inicializar la aplicación.
               </p>
             </div>
 
-            <div className="p-3 bg-[#07090d] border border-slate-800 rounded-xl text-left text-xs font-mono text-rose-300 overflow-x-auto max-h-32">
+            <div className="p-3 bg-[#fcf0f1] dark:bg-rose-950/40 border border-[#d63638]/30 rounded-lg text-left text-xs font-mono text-[#d63638] dark:text-rose-300 overflow-x-auto max-h-32">
               {errorMsg}
             </div>
 
